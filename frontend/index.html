@@ -1,244 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tomoca IT Support</title>
-
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --primary:#8B4513;
-      --primary-dark:#5D4037;
-      --card:#fff;
-      --muted:#6b6b6b;
-      --shadow: 0 12px 30px rgba(0,0,0,0.18);
-      --radius:14px;
-      --accent:#a76e45;
-      --bg1: linear-gradient(135deg,#4e2b18,#d4a373);
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:"Poppins",system-ui,Arial,sans-serif;
-      min-height:100vh;
-      background:var(--bg1);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:28px;
-      color:#222;
-    }
-    .container{
-      width:100%;
-      max-width:720px;
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      animation:fadeIn .45s ease;
-    }
-    @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-    .header{
-      background:linear-gradient(90deg,var(--primary-dark),var(--primary));
-      color:#fff;
-      padding:36px 30px;
-      text-align:center;
-    }
-    .header h1{font-size:2.1rem;font-weight:700}
-    .header p{margin-top:6px;opacity:.92}
-    .form-container{padding:34px 28px;background:var(--card)}
-    .form-row{display:flex;gap:12px}
-    .form-group{margin-bottom:18px}
-    label{display:block;font-weight:600;color:var(--primary-dark);margin-bottom:8px}
-    input[type=text], select, textarea{
-      width:100%;
-      padding:13px 14px;
-      border-radius:10px;
-      border:2px solid #eee;
-      background:#fbf9f8;
-      font-size:15px;
-      transition:all .18s ease;
-    }
-    input:focus, select:focus, textarea:focus{
-      outline:none;
-      border-color:var(--accent);
-      box-shadow:0 6px 18px rgba(167,110,69,0.08);
-      background:#fff;
-    }
-    textarea{min-height:140px;resize:vertical;line-height:1.45}
-    .submit-btn{
-      width:100%;
-      padding:14px;
-      border-radius:10px;
-      border:none;
-      cursor:pointer;
-      background:linear-gradient(90deg,var(--primary),var(--primary-dark));
-      color:#fff;
-      font-weight:700;
-      font-size:1.05rem;
-      transition:transform .12s ease, box-shadow .12s ease;
-      box-shadow:0 6px 18px rgba(139,69,19,0.18);
-    }
-    .submit-btn:hover{transform:translateY(-3px)}
-    .submit-btn:disabled{opacity:.7;cursor:not-allowed;transform:none}
-    .loading{display:none;margin-top:14px;text-align:center}
-    .spinner{
-      width:44px;height:44px;border-radius:50%;
-      border:4px solid rgba(0,0,0,0.06);
-      border-top-color:var(--primary);
-      animation:spin 1s linear infinite;margin:0 auto 8px;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .response-message{display:none;margin-top:16px;padding:14px;border-radius:10px;font-weight:700;text-align:center}
-    .response-message.success{background:#e8f5e9;color:#1d7a2b;border:1px solid #c8e6c9}
-    .response-message.error{background:#feecec;color:#9a2b2b;border:1px solid #f5c6c6}
-    .footer{padding:18px;text-align:center;color:var(--muted);font-size:.9rem;border-top:1px solid #faf5f3;background:#faf9f8}
-    .small-note{font-size:.88rem;color:var(--muted);margin-top:8px}
-    /* responsive */
-    @media (max-width:640px){
-      .header{padding:26px 18px}
-      .form-container{padding:22px}
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <div class="container" role="main">
-    <div class="header" role="banner">
-      <h1>☕ Tomoca IT Support</h1>
-      <p>Submit an IT ticket — our team will respond as soon as possible</p>
-    </div>
 
-    <div class="form-container">
-      <form id="supportForm" autocomplete="off">
-        <div class="form-group">
-          <label for="name">Your Name *</label>
-          <input id="name" name="name" type="text" required placeholder="Full name">
+  <div class="wrapper">
+    <div class="card">
+
+      <h2>Tomoca IT Support Ticket</h2>
+      <p class="subtitle">Submit your IT issue and our team will assist you.</p>
+
+      <form id="ticketForm">
+
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="name" placeholder="Enter your name" required />
         </div>
 
-        <div class="form-row" style="margin-bottom:18px">
-          <div style="flex:1" class="form-group">
-            <label for="department">Department *</label>
-            <select id="department" name="department" required>
-              <option value="">Select department</option>
-              <option>Human Resources</option>
-              <option>Finance</option>
-              <option>Marketing</option>
-              <option>Operations</option>
-              <option>Sales</option>
-              <option>Coffee Production</option>
-              <option>Retail</option>
-              <option>Other</option>
-            </select>
-          </div>
-
-          <div style="width:160px" class="form-group">
-            <label for="urgency">Urgency *</label>
-            <select id="urgency" name="urgency" required>
-              <option value="">Select</option>
-              <option>Low</option>
-              <option>Medium</option>
-              <option>High</option>
-              <option>Critical</option>
-            </select>
-          </div>
+        <div class="field">
+          <label>Department</label>
+          <select id="department" required>
+            <option value="">Select Department</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+            <option value="IT">IT</option>
+            <option value="Sales">Sales</option>
+            <option value="Production">Production</option>
+          </select>
         </div>
 
-        <div class="form-group">
-          <label for="issue">Issue Description *</label>
-          <textarea id="issue" name="issue" required placeholder="Describe the issue in detail..."></textarea>
-          <div class="small-note">Tip: include screenshots in the admin panel (coming soon).</div>
+        <div class="field">
+          <label>Urgency</label>
+          <select id="urgency" required>
+            <option value="">Select Urgency</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+            <option value="Critical">Critical</option>
+          </select>
         </div>
 
-        <button id="submitBtn" class="submit-btn" type="submit">Submit Ticket</button>
-
-        <div id="loading" class="loading" aria-hidden="true">
-          <div class="spinner" role="img" aria-label="Loading"></div>
-          <div class="small-note">Submitting your ticket...</div>
+        <div class="field">
+          <label>Describe the Issue</label>
+          <textarea id="issue" placeholder="Describe your issue..." required></textarea>
         </div>
 
-        <div id="responseMessage" class="response-message" role="status" aria-live="polite"></div>
+        <button type="submit">Submit Ticket</button>
+
       </form>
-    </div>
 
-    <div class="footer">
-      Tomoca Coffee IT Department — Support System v1.0
+      <p id="responseMessage"></p>
+
     </div>
   </div>
 
-  <script>
-    // Keep behavior identical to prior working code but more robust selectors.
-    (function(){
-      const form = document.getElementById('supportForm');
-      const submitBtn = document.getElementById('submitBtn');
-      const loading = document.getElementById('loading');
-      const responseMessage = document.getElementById('responseMessage');
+<script>
+document.getElementById("ticketForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-      function showLoading(on){
-        loading.style.display = on ? 'block' : 'none';
-      }
-      function showMessage(type, html){
-        responseMessage.className = 'response-message ' + (type || '');
-        responseMessage.innerHTML = html;
-        responseMessage.style.display = 'block';
-      }
+    let name = document.getElementById("name").value.trim();
+    let department = document.getElementById("department").value;
+    let urgency = document.getElementById("urgency").value;
+    let issue = document.getElementById("issue").value.trim();
 
-      form.addEventListener('submit', async function(e){
-        e.preventDefault();
-        // collect fields by id to avoid accidental name-shadowing
-        const nameEl = document.getElementById('name');
-        const departmentEl = document.getElementById('department');
-        const urgencyEl = document.getElementById('urgency');
-        const issueEl = document.getElementById('issue');
+    if (!name || !department || !urgency || !issue) {
+        document.getElementById("responseMessage").innerHTML = "⚠️ Please fill all fields.";
+        return;
+    }
 
-        const payload = {
-          name: nameEl.value.trim(),
-          department: departmentEl.value,
-          urgency: urgencyEl.value,
-          issue: issueEl.value.trim()
-        };
+    try {
+        const response = await fetch("/api/submit-ticket", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, department, urgency, issue }),
+        });
 
-        // simple client validation (mirrors server)
-        if(!payload.name || !payload.department || !payload.urgency || !payload.issue){
-          showMessage('error', '❌ Please fill in all required fields.');
-          return;
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById("responseMessage").innerHTML =
+                "✅ Ticket Submitted Successfully! Ticket ID: " + data.ticketId;
+
+            document.getElementById("ticketForm").reset();
+        } else {
+            document.getElementById("responseMessage").innerHTML =
+                "❌ Failed: " + data.message;
         }
 
-        submitBtn.disabled = true;
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Submitting...';
-        showLoading(true);
-        responseMessage.style.display = 'none';
+    } catch (error) {
+        document.getElementById("responseMessage").innerHTML =
+            "❌ Server Error — please try again.";
+    }
+});
+</script>
 
-        try {
-          // <- Use relative path for Vercel /api. Replace with full URL if using a remote backend.
-          const res = await fetch('/api/submit-ticket', {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify(payload)
-          });
-
-          const data = await res.json();
-
-          if (data && data.success) {
-            showMessage('success', `✅ <strong>Ticket Submitted Successfully!</strong><br>Your Ticket ID: <code>${data.ticketId}</code><br><small>The IT team has been notified.</small>`);
-            form.reset();
-          } else {
-            const msg = (data && data.message) ? data.message : 'Failed to submit ticket.';
-            showMessage('error', '❌ ' + msg);
-          }
-
-        } catch (err) {
-          console.error('Submit error', err);
-          showMessage('error', '❌ Network error. Please try again later.');
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
-          showLoading(false);
-        }
-      });
-    })();
-  </script>
 </body>
 </html>
