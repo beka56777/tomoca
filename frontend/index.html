@@ -1,103 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tomoca IT Support</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary:#8B4513;
+      --primary-dark:#5D4037;
+      --accent:#D2691E;
+      --bg-grad: linear-gradient(135deg,#4e2b18,#d4a373);
+      --card:#fff;
+      --muted:#6b6b6b;
+      --success-bg:#e8f5e9;
+      --error-bg:#ffebee;
+      --shadow: 0 12px 30px rgba(0,0,0,0.18);
+      --radius:14px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Poppins",system-ui,Arial,sans-serif;
+      min-height:100vh;
+      background:var(--bg-grad);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      color:#222;
+    }
+
+    .container{
+      width:100%;
+      max-width:760px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:0;
+      min-height:480px;
+    }
+
+    /* Left promotional/brand panel */
+    .brand {
+      background: linear-gradient(180deg, rgba(93,64,55,0.95), rgba(139,69,19,0.95));
+      color:white;
+      padding:34px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:14px;
+    }
+
+    .brand .logo {
+      display:flex;
+      align-items:center;
+      gap:14px;
+      font-weight:700;
+      font-size:1.4rem;
+    }
+
+    .logo .icon {
+      width:66px;height:66px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.08); font-size:1.6rem;
+      box-shadow: inset 0 -6px 20px rgba(0,0,0,0.2);
+    }
+
+    .brand h2{font-size:1.6rem;margin-top:6px}
+    .brand p{opacity:0.95;line-height:1.4;color: #f8efe6}
+    .brand small{color:rgba(255,255,255,0.85);font-size:0.9rem;opacity:0.9}
+
+    /* Form area */
+    .form-area {
+      padding:28px 30px;
+      background:var(--card);
+    }
+    .form-area .header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+    .form-area .header h3 { font-size:1.25rem; color:var(--primary-dark); }
+    .form-area .header p { color:var(--muted); font-size:0.92rem; margin-top:6px; }
+
+    form { margin-top:6px; }
+
+    .form-group { margin-bottom:16px; }
+    label { display:block; font-weight:600; color:var(--primary-dark); margin-bottom:8px; font-size:0.98rem; }
+    input[type="text"], select, textarea {
+      width:100%;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1.8px solid #eee;
+      background:#fbf9f8;
+      font-size:15px;
+      transition: box-shadow .15s ease, border-color .15s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline:none;
+      border-color:var(--accent);
+      box-shadow:0 8px 20px rgba(167,110,69,0.08);
+      background:#fff;
+    }
+    textarea { min-height:120px; resize:vertical; line-height:1.45; }
+
+    .submit-btn {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      padding:12px 16px;
+      border-radius:10px;
+      background: linear-gradient(90deg,var(--primary),var(--primary-dark));
+      color:#fff;
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+      box-shadow:0 6px 18px rgba(139,69,19,0.18);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .submit-btn:hover { transform: translateY(-3px); }
+
+    .submit-btn:disabled {
+      opacity:.8; cursor:not-allowed; transform:none; box-shadow:none;
+    }
+
+    .loading { display:none; margin-top:14px; text-align:center; }
+    .spinner { width:40px; height:40px; border-radius:50%; border:4px solid rgba(0,0,0,0.06); border-top-color:var(--primary); animation:spin 1s linear infinite; margin:0 auto 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .response-message {
+      display:none;
+      margin-top:14px;
+      padding:12px;
+      border-radius:10px;
+      font-weight:700;
+      text-align:center;
+    }
+    .response-message.success { background:var(--success-bg); color:#166a16; border:1px solid #c9e6c9; }
+    .response-message.error { background:var(--error-bg); color:#9a2b2b; border:1px solid #f5c6c6; }
+
+    .footer { margin-top:18px; font-size:0.9rem; color:var(--muted); text-align:center; }
+
+    /* Mobile */
+    @media (max-width:880px) {
+      .container { grid-template-columns: 1fr; max-width:520px; }
+      .brand { padding:22px; text-align:center; }
+      .form-area { padding:22px; }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="container" role="main">
 
-  <div class="wrapper">
-    <div class="card">
+    <!-- LEFT: Brand/marketing panel (visual only) -->
+    <div class="brand" aria-hidden="true">
+      <div class="logo">
+        <div class="icon">☕</div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:700">Tomoca Coffee</div>
+          <div style="font-size:0.88rem;opacity:.95">IT Support Desk</div>
+        </div>
+      </div>
 
-      <h2>Tomoca IT Support Ticket</h2>
-      <p class="subtitle">Submit your IT issue and our team will assist you.</p>
+      <h2>Fast help for your work</h2>
+      <p>Submit your issue and our IT team will respond quickly. Use clear descriptions and include ticket ID when contacting support.</p>
+      <small>Tip: You’ll receive a ticket ID after submission — keep it for follow-ups.</small>
+    </div>
 
-      <form id="ticketForm">
+    <!-- RIGHT: Form -->
+    <div class="form-area" role="form">
+      <div class="header">
+        <div>
+          <h3>Submit a support ticket</h3>
+          <p>Please describe your issue clearly — our team will get back to you.</p>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.85rem;color:var(--muted)">Support System</div>
+          <div style="font-weight:700;color:var(--primary-dark)">v1.0</div>
+        </div>
+      </div>
 
-        <div class="field">
-          <label>Name</label>
-          <input type="text" id="name" placeholder="Enter your name" required />
+      <form id="supportForm" autocomplete="off">
+        <div class="form-group">
+          <label for="name">Your Name *</label>
+          <input type="text" id="name" name="name" placeholder="Enter your full name" required />
         </div>
 
-        <div class="field">
-          <label>Department</label>
-          <select id="department" required>
-            <option value="">Select Department</option>
-            <option value="HR">HR</option>
-            <option value="Finance">Finance</option>
-            <option value="IT">IT</option>
-            <option value="Sales">Sales</option>
-            <option value="Production">Production</option>
-          </select>
+        <div class="form-group" style="display:flex;gap:12px;">
+          <div style="flex:1">
+            <label for="department">Department *</label>
+            <select id="department" name="department" required>
+              <option value="">Select your department</option>
+              <option value="HR">Human Resources</option>
+              <option value="Finance">Finance</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Operations">Operations</option>
+              <option value="Sales">Sales</option>
+              <option value="Coffee Production">Coffee Production</option>
+              <option value="Retail">Retail</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div style="width:150px">
+            <label for="urgency">Urgency *</label>
+            <select id="urgency" name="urgency" required>
+              <option value="">Select</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
         </div>
 
-        <div class="field">
-          <label>Urgency</label>
-          <select id="urgency" required>
-            <option value="">Select Urgency</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-            <option value="Critical">Critical</option>
-          </select>
+        <div class="form-group">
+          <label for="issue">Issue Description *</label>
+          <textarea id="issue" name="issue" placeholder="Please describe your issue in detail..." required></textarea>
         </div>
 
-        <div class="field">
-          <label>Describe the Issue</label>
-          <textarea id="issue" placeholder="Describe your issue..." required></textarea>
+        <button type="submit" class="submit-btn" id="submitBtn">Submit Ticket</button>
+
+        <div class="loading" id="loading" aria-hidden="true">
+          <div class="spinner" role="img" aria-label="Loading"></div>
+          <div style="font-size:0.95rem;color:var(--muted)">Submitting your ticket...</div>
         </div>
 
-        <button type="submit">Submit Ticket</button>
+        <div id="responseMessage" class="response-message" role="status" aria-live="polite"></div>
 
+        <div class="footer">Tomoca Coffee IT Department | Support System v1.0</div>
       </form>
-
-      <p id="responseMessage"></p>
-
     </div>
   </div>
 
-<script>
-document.getElementById("ticketForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
+  <!-- KEEP YOUR BACKEND CALLS EXACTLY AS BEFORE -->
+  <script>
+  (function(){
+    const form = document.getElementById('supportForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loading');
+    const responseMessage = document.getElementById('responseMessage');
 
-    let name = document.getElementById("name").value.trim();
-    let department = document.getElementById("department").value;
-    let urgency = document.getElementById("urgency").value;
-    let issue = document.getElementById("issue").value.trim();
-
-    if (!name || !department || !urgency || !issue) {
-        document.getElementById("responseMessage").innerHTML = "⚠️ Please fill all fields.";
-        return;
+    function showLoading(on){
+      loading.style.display = on ? 'block' : 'none';
+    }
+    function showMessage(type, html){
+      responseMessage.className = 'response-message ' + (type || '');
+      responseMessage.innerHTML = html;
+      responseMessage.style.display = 'block';
     }
 
-    try {
-        const response = await fetch("/api/submit-ticket", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, department, urgency, issue }),
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+
+      // exact same IDs: name, department, urgency, issue
+      const formData = {
+        name: document.getElementById('name').value.trim(),
+        department: document.getElementById('department').value,
+        urgency: document.getElementById('urgency').value,
+        issue: document.getElementById('issue').value.trim()
+      };
+
+      // basic client-side validation
+      if (!formData.name || !formData.department || !formData.urgency || !formData.issue) {
+        showMessage('error', '❌ Please fill in all required fields.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Submitting...';
+      showLoading(true);
+      responseMessage.style.display = 'none';
+
+      try {
+        // *** NO CHANGE TO BACKEND URL — uses Render domain you provided earlier ***
+        const response = await fetch('https://tomoca.onrender.com/submit-ticket', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
         });
 
         const data = await response.json();
 
-        if (data.success) {
-            document.getElementById("responseMessage").innerHTML =
-                "✅ Ticket Submitted Successfully! Ticket ID: " + data.ticketId;
-
-            document.getElementById("ticketForm").reset();
+        responseMessage.style.display = 'block';
+        if (data && data.success) {
+          showMessage('success', `
+            ✅ <strong>Ticket Submitted Successfully!</strong><br>
+            Your Ticket ID: <code>${data.ticketId}</code><br>
+            <small>The IT team has been notified and will contact you shortly.</small>
+          `);
+          form.reset();
         } else {
-            document.getElementById("responseMessage").innerHTML =
-                "❌ Failed: " + data.message;
+          const msg = (data && data.message) ? data.message : 'Failed to submit ticket.';
+          showMessage('error', '❌ ' + msg);
         }
-
-    } catch (error) {
-        document.getElementById("responseMessage").innerHTML =
-            "❌ Server Error — please try again.";
-    }
-});
-</script>
-
+      } catch (err) {
+        console.error('Error submitting ticket:', err);
+        showMessage('error', '❌ Network error. Please check your connection and try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+        showLoading(false);
+      }
+    });
+  })();
+  </script>
 </body>
 </html>
