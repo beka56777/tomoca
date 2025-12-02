@@ -28,15 +28,37 @@
       min-height:100vh;
       background:var(--bg-grad);
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:center;
       padding:28px;
       color:#222;
     }
 
+    /* Top Navigation */
+    .top-nav {
+      width:100%;
+      max-width:1100px;
+      margin-bottom:18px;
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .top-nav a {
+      text-decoration:none;
+      color: #fff;
+      background: rgba(0,0,0,0.12);
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:600;
+      transition: all .12s ease;
+    }
+    .top-nav a:hover { transform: translateY(-2px); background: rgba(0,0,0,0.18); }
+
     .container{
       width:100%;
-      max-width:760px;
+      max-width:960px;
       background:var(--card);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
@@ -44,10 +66,10 @@
       display:grid;
       grid-template-columns: 1fr 420px;
       gap:0;
-      min-height:480px;
+      min-height:520px;
     }
 
-    /* Left promotional/brand panel */
+    /* Left brand panel */
     .brand {
       background: linear-gradient(180deg, rgba(93,64,55,0.95), rgba(139,69,19,0.95));
       color:white;
@@ -57,41 +79,20 @@
       justify-content:center;
       gap:14px;
     }
-
-    .brand .logo {
-      display:flex;
-      align-items:center;
-      gap:14px;
-      font-weight:700;
-      font-size:1.4rem;
-    }
-
-    .logo .icon {
-      width:66px;height:66px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-      background:rgba(255,255,255,0.08); font-size:1.6rem;
-      box-shadow: inset 0 -6px 20px rgba(0,0,0,0.2);
-    }
-
+    .brand .logo { display:flex; align-items:center; gap:14px; font-weight:700; font-size:1.4rem; }
+    .logo .icon { width:66px;height:66px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.08); font-size:1.6rem; box-shadow: inset 0 -6px 20px rgba(0,0,0,0.2); }
     .brand h2{font-size:1.6rem;margin-top:6px}
     .brand p{opacity:0.95;line-height:1.4;color: #f8efe6}
     .brand small{color:rgba(255,255,255,0.85);font-size:0.9rem;opacity:0.9}
 
     /* Form area */
-    .form-area {
-      padding:28px 30px;
-      background:var(--card);
-    }
-    .form-area .header {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:18px;
-    }
+    .form-area { padding:28px 30px; background:var(--card); }
+    .form-area .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
     .form-area .header h3 { font-size:1.25rem; color:var(--primary-dark); }
     .form-area .header p { color:var(--muted); font-size:0.92rem; margin-top:6px; }
 
     form { margin-top:6px; }
-
     .form-group { margin-bottom:16px; }
     label { display:block; font-weight:600; color:var(--primary-dark); margin-bottom:8px; font-size:0.98rem; }
     input[type="text"], select, textarea {
@@ -103,7 +104,7 @@
       font-size:15px;
       transition: box-shadow .15s ease, border-color .15s ease;
     }
-    input:focus, select:focus, textarea:focus {
+    input:focus, select:focus, textarea:focus{
       outline:none;
       border-color:var(--accent);
       box-shadow:0 8px 20px rgba(167,110,69,0.08);
@@ -111,56 +112,52 @@
     }
     textarea { min-height:120px; resize:vertical; line-height:1.45; }
 
-    .submit-btn {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      padding:12px 16px;
-      border-radius:10px;
-      background: linear-gradient(90deg,var(--primary),var(--primary-dark));
-      color:#fff;
-      font-weight:700;
-      border:none;
-      cursor:pointer;
-      box-shadow:0 6px 18px rgba(139,69,19,0.18);
+    .submit-btn { display:inline-flex; align-items:center; justify-content:center; width:100%;
+      padding:12px 16px; border-radius:10px; background: linear-gradient(90deg,var(--primary),var(--primary-dark));
+      color:#fff; font-weight:700; border:none; cursor:pointer; box-shadow:0 6px 18px rgba(139,69,19,0.18);
       transition: transform .12s ease, box-shadow .12s ease;
     }
-    .submit-btn:hover { transform: translateY(-3px); }
+    .submit-btn:hover{ transform: translateY(-3px); }
+    .submit-btn:disabled{ opacity:.8; cursor:not-allowed; transform:none; box-shadow:none; }
 
-    .submit-btn:disabled {
-      opacity:.8; cursor:not-allowed; transform:none; box-shadow:none;
-    }
+    .loading{ display:none; margin-top:14px; text-align:center; }
+    .spinner{ width:40px; height:40px; border-radius:50%; border:4px solid rgba(0,0,0,0.06);
+      border-top-color:var(--primary); animation:spin 1s linear infinite; margin:0 auto 8px; }
+    @keyframes spin{ to { transform: rotate(360deg); } }
 
-    .loading { display:none; margin-top:14px; text-align:center; }
-    .spinner { width:40px; height:40px; border-radius:50%; border:4px solid rgba(0,0,0,0.06); border-top-color:var(--primary); animation:spin 1s linear infinite; margin:0 auto 8px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .response-message {
-      display:none;
-      margin-top:14px;
-      padding:12px;
-      border-radius:10px;
-      font-weight:700;
-      text-align:center;
-    }
+    .response-message { display:none; margin-top:14px; padding:12px; border-radius:10px; font-weight:700; text-align:center; }
     .response-message.success { background:var(--success-bg); color:#166a16; border:1px solid #c9e6c9; }
     .response-message.error { background:var(--error-bg); color:#9a2b2b; border:1px solid #f5c6c6; }
 
     .footer { margin-top:18px; font-size:0.9rem; color:var(--muted); text-align:center; }
 
-    /* Mobile */
+    /* small screens */
     @media (max-width:880px) {
-      .container { grid-template-columns: 1fr; max-width:520px; }
-      .brand { padding:22px; text-align:center; }
-      .form-area { padding:22px; }
+      .top-nav { justify-content:center; gap:8px; }
+      .container{ grid-template-columns:1fr; max-width:520px; }
+      .brand{ padding:20px; text-align:center; }
+      .form-area{ padding:20px; }
     }
   </style>
 </head>
 <body>
+
+  <!-- NAVIGATION (links to all frontend pages you requested) -->
+  <div class="top-nav" role="navigation" aria-label="main">
+    <a href="index.html">Submit Ticket</a>
+    <a href="track.html">Track Ticket</a>
+    <a href="history.html">History</a>
+    <a href="faq.html">FAQ</a>
+    <a href="contact-it.html">Contact IT</a>
+
+    <!-- Admin links (keep private) -->
+    <a href="dashboard.html" style="background:rgba(255,255,255,0.12);">Admin Dashboard</a>
+    <a href="tickets.html" style="background:rgba(255,255,255,0.12);">All Tickets</a>
+  </div>
+
   <div class="container" role="main">
 
-    <!-- LEFT: Brand/marketing panel (visual only) -->
+    <!-- LEFT PANEL: brand / tips -->
     <div class="brand" aria-hidden="true">
       <div class="logo">
         <div class="icon">☕</div>
@@ -171,11 +168,11 @@
       </div>
 
       <h2>Fast help for your work</h2>
-      <p>Submit your issue and our IT team will respond quickly. Use clear descriptions and include ticket ID when contacting support.</p>
-      <small>Tip: You’ll receive a ticket ID after submission — keep it for follow-ups.</small>
+      <p>Submit your issue and our IT team will respond quickly. Include the ticket ID in follow-ups.</p>
+      <small>Tip: Attach screenshots in the admin panel (coming soon).</small>
     </div>
 
-    <!-- RIGHT: Form -->
+    <!-- RIGHT PANEL: the form -->
     <div class="form-area" role="form">
       <div class="header">
         <div>
@@ -241,7 +238,7 @@
     </div>
   </div>
 
-  <!-- KEEP YOUR BACKEND CALLS EXACTLY AS BEFORE -->
+  <!-- KEEP YOUR BACKEND CALLS EXACTLY AS BEFORE (Render backend) -->
   <script>
   (function(){
     const form = document.getElementById('supportForm');
