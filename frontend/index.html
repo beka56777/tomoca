@@ -34,27 +34,36 @@
       color:#222;
     }
 
-    /* Top Navigation */
-    .top-nav {
+    /* NAV STACKED VERTICALLY AT TOP */
+    .top-nav-wrap {
       width:100%;
       max-width:1100px;
-      margin-bottom:18px;
       display:flex;
-      gap:12px;
-      justify-content:center;
-      align-items:center;
-      flex-wrap:wrap;
+      justify-content:flex-start; /* left aligned */
+      margin-bottom:14px;
     }
+
+    .top-nav {
+      display:flex;
+      flex-direction:column; /* STACK vertically */
+      gap:10px;
+      align-items:flex-start;
+      background: rgba(0,0,0,0.06);
+      padding:12px;
+      border-radius:10px;
+    }
+
     .top-nav a {
       text-decoration:none;
       color: #fff;
-      background: rgba(0,0,0,0.12);
-      padding:8px 12px;
+      background: rgba(0,0,0,0.16);
+      padding:10px 14px;
       border-radius:8px;
       font-weight:600;
       transition: all .12s ease;
+      min-width:160px;
     }
-    .top-nav a:hover { transform: translateY(-2px); background: rgba(0,0,0,0.18); }
+    .top-nav a:hover { transform: translateY(-2px); background: rgba(0,0,0,0.22); }
 
     .container{
       width:100%;
@@ -133,7 +142,8 @@
 
     /* small screens */
     @media (max-width:880px) {
-      .top-nav { justify-content:center; gap:8px; }
+      .top-nav-wrap { justify-content:center; }
+      .top-nav { align-items:center; }
       .container{ grid-template-columns:1fr; max-width:520px; }
       .brand{ padding:20px; text-align:center; }
       .form-area{ padding:20px; }
@@ -142,17 +152,18 @@
 </head>
 <body>
 
-  <!-- NAVIGATION (links to all frontend pages you requested) -->
-  <div class="top-nav" role="navigation" aria-label="main">
-    <a href="index.html">Submit Ticket</a>
-    <a href="track.html">Track Ticket</a>
-    <a href="history.html">History</a>
-    <a href="faq.html">FAQ</a>
-    <a href="contact-it.html">Contact IT</a>
-
-    <!-- Admin links (keep private) -->
-    <a href="dashboard.html" style="background:rgba(255,255,255,0.12);">Admin Dashboard</a>
-    <a href="tickets.html" style="background:rgba(255,255,255,0.12);">All Tickets</a>
+  <!-- NAV: STACKED VERTICALLY AT TOP -->
+  <div class="top-nav-wrap" role="navigation" aria-label="main">
+    <nav class="top-nav">
+      <a href="index.html">Submit Ticket</a>
+      <a href="track.html">Track Ticket</a>
+      <a href="history.html">History</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact-it.html">Contact IT</a>
+      <!-- Admin links (keep private) -->
+      <a href="dashboard.html">Admin Dashboard</a>
+      <a href="tickets.html">All Tickets</a>
+    </nav>
   </div>
 
   <div class="container" role="main">
