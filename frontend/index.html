@@ -1,256 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tomoca IT Support</title>
-
-  <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --primary:#8B4513;
-      --primary-dark:#5D4037;
-      --accent:#D2691E;
-      --bg-grad: linear-gradient(135deg,#4e2b18,#d4a373);
-      --card:#fff;
-      --muted:#6b6b6b;
-      --success-bg:#e8f5e9;
-      --error-bg:#ffebee;
-      --shadow: 0 12px 30px rgba(0,0,0,0.18);
-      --radius:12px;
-    }
-
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{
-      font-family:"Poppins",system-ui,Arial,sans-serif;
-      min-height:100vh;
-      background:var(--bg-grad);
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:20px;
-      color:#222;
-    }
-
-    /* NAV STACKED VERTICALLY AT TOP */
-    .top-nav-wrap {
-      width:100%;
-      max-width:900px;
-      display:flex;
-      justify-content:flex-start;
-      margin-bottom:12px;
-    }
-
-    .top-nav {
-      display:flex;
-      flex-direction:column; /* STACK vertically */
-      gap:10px;
-      align-items:flex-start;
-      background: rgba(0,0,0,0.06);
-      padding:10px;
-      border-radius:10px;
-    }
-
-    .top-nav a {
-      text-decoration:none;
-      color: #fff;
-      background: rgba(0,0,0,0.16);
-      padding:8px 12px;
-      border-radius:8px;
-      font-weight:600;
-      transition: all .12s ease;
-      min-width:150px;
-    }
-    .top-nav a:hover { transform: translateY(-2px); background: rgba(0,0,0,0.22); }
-
-    /* CONTAINER: slightly narrower and compact form column */
-    .container{
-      width:100%;
-      max-width:900px;               /* reduced overall width for compact look */
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      display:grid;
-      grid-template-columns: 1fr 380px; /* RIGHT panel (form) is fixed and compact */
-      gap:0;
-      min-height:460px;
-    }
-
-    /* Brand panel - left column */
-    .brand {
-      background: linear-gradient(180deg, rgba(93,64,55,0.95), rgba(139,69,19,0.95));
-      color:white;
-      padding:24px;              /* tightened padding */
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      gap:12px;
-    }
-    .brand .logo { display:flex; align-items:center; gap:12px; font-weight:700; font-size:1.2rem; }
-    .logo .icon { width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-      background:rgba(255,255,255,0.08); font-size:1.4rem; box-shadow: inset 0 -6px 20px rgba(0,0,0,0.18); }
-    .brand h2{font-size:1.3rem;margin-top:6px}
-    .brand p{opacity:0.95;line-height:1.35;color: #f8efe6}
-    .brand small{color:rgba(255,255,255,0.85);font-size:0.9rem;opacity:0.9}
-
-    /* Form area - right column (compact) */
-    .form-area { padding:18px 18px; background:var(--card); display:flex; flex-direction:column; justify-content:flex-start; }
-    .form-area .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:10px; }
-    .form-area .header h3 { font-size:1.05rem; color:var(--primary-dark); margin-bottom:4px; }
-    .form-area .header p { color:var(--muted); font-size:0.85rem; margin-top:2px; }
-
-    form { margin-top:6px; width:100%; }
-    .form-group { margin-bottom:12px; }
-    label { display:block; font-weight:600; color:var(--primary-dark); margin-bottom:6px; font-size:0.95rem; }
-    input[type="text"], select, textarea {
-      width:100%;
-      padding:10px 12px;
-      border-radius:8px;
-      border:1.5px solid #eee;
-      background:#fbf9f8;
-      font-size:14px;
-      transition: box-shadow .12s ease, border-color .12s ease;
-    }
-    input:focus, select:focus, textarea:focus{
-      outline:none;
-      border-color:var(--accent);
-      box-shadow:0 6px 14px rgba(167,110,69,0.06);
-      background:#fff;
-    }
-    textarea { min-height:110px; resize:vertical; line-height:1.4; }
-
-    .submit-btn { display:inline-flex; align-items:center; justify-content:center; width:100%;
-      padding:10px 12px; border-radius:8px; background: linear-gradient(90deg,var(--primary),var(--primary-dark));
-      color:#fff; font-weight:700; border:none; cursor:pointer; box-shadow:0 6px 14px rgba(139,69,19,0.16);
-      transition: transform .12s ease, box-shadow .12s ease; font-size:15px;
-    }
-    .submit-btn:hover{ transform: translateY(-2px); }
-    .submit-btn:disabled{ opacity:.85; cursor:not-allowed; transform:none; box-shadow:none; }
-
-    .loading{ display:none; margin-top:12px; text-align:center; }
-    .spinner{ width:34px; height:34px; border-radius:50%; border:4px solid rgba(0,0,0,0.06);
-      border-top-color:var(--primary); animation:spin 1s linear infinite; margin:0 auto 8px; }
-    @keyframes spin{ to { transform: rotate(360deg); } }
-
-    .response-message { display:none; margin-top:12px; padding:10px; border-radius:8px; font-weight:700; text-align:center; font-size:14px; }
-    .response-message.success { background:var(--success-bg); color:#166a16; border:1px solid #c9e6c9; }
-    .response-message.error { background:var(--error-bg); color:#9a2b2b; border:1px solid #f5c6c6; }
-
-    .footer { margin-top:12px; font-size:0.85rem; color:var(--muted); text-align:center; }
-
-    /* small screens - stack to single column and expand form */
-    @media (max-width:880px) {
-      .top-nav-wrap { justify-content:center; }
-      .top-nav { align-items:center; }
-      .container{ grid-template-columns:1fr; max-width:520px; }
-      .brand{ padding:18px; text-align:center; }
-      .form-area{ padding:16px; }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="page-wrapper">
 
-  <!-- NAV: STACKED VERTICALLY AT TOP -->
-  <div class="top-nav-wrap" role="navigation" aria-label="main">
-    <nav class="top-nav">
-      <a href="index.html">Submit Ticket</a>
-      <a href="track.html">Track Ticket</a>
-      <a href="history.html">History</a>
-      <a href="faq.html">FAQ</a>
-      <a href="contact-it.html">Contact IT</a>
-      <!-- Admin links (keep private) -->
-      <a href="dashboard.html">Admin Dashboard</a>
-      <a href="tickets.html">All Tickets</a>
-    </nav>
-  </div>
+    <!-- LEFT: Vertical Navigation (sidebar) -->
+    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+      <nav class="nav">
+        <a class="nav-btn" href="index.html">Submit Ticket</a>
+        <a class="nav-btn" href="track.html">Track Ticket</a>
+        <a class="nav-btn" href="history.html">History</a>
+        <a class="nav-btn" href="faq.html">FAQ</a>
+        <a class="nav-btn" href="contact-it.html">Contact IT</a>
+        <a class="nav-btn admin" href="dashboard.html">Admin Dashboard</a>
+        <a class="nav-btn admin" href="tickets.html">All Tickets</a>
+      </nav>
+    </aside>
 
-  <div class="container" role="main">
+    <!-- RIGHT: Main content (wider and compact) -->
+    <main class="main-content" role="main">
+      <div class="ticket-wrapper" aria-live="polite">
 
-    <!-- LEFT PANEL: brand / tips -->
-    <div class="brand" aria-hidden="true">
-      <div class="logo">
-        <div class="icon">☕</div>
-        <div>
-          <div style="font-size:1.05rem;font-weight:700">Tomoca Coffee</div>
-          <div style="font-size:0.82rem;opacity:.95">IT Support Desk</div>
-        </div>
-      </div>
+        <!-- left info panel inside the card -->
+        <div class="ticket-info" aria-hidden="true">
+          <div class="brand">
+            <div class="brand-top">
+              <div class="brand-icon">☕</div>
+              <div class="brand-title">
+                <div class="brand-name">Tomoca Coffee</div>
+                <div class="brand-sub">IT Support Desk</div>
+              </div>
+            </div>
 
-      <h2 style="font-size:1.2rem">Fast help for your work</h2>
-      <p style="font-size:0.95rem">Submit your issue and our IT team will respond quickly. Include the ticket ID in follow-ups.</p>
-      <small>Tip: Attach screenshots in the admin panel (coming soon).</small>
-    </div>
-
-    <!-- RIGHT PANEL: the compact form -->
-    <div class="form-area" role="form">
-      <div class="header">
-        <div>
-          <h3>Submit a support ticket</h3>
-          <p style="margin:0">Please describe your issue clearly — our team will get back to you.</p>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:0.78rem;color:var(--muted)">Support System</div>
-          <div style="font-weight:700;color:var(--primary-dark);font-size:0.92rem">v1.0</div>
-        </div>
-      </div>
-
-      <form id="supportForm" autocomplete="off">
-        <div class="form-group">
-          <label for="name">Your Name *</label>
-          <input type="text" id="name" name="name" placeholder="Enter your full name" required />
-        </div>
-
-        <div class="form-group" style="display:flex;gap:8px;">
-          <div style="flex:1">
-            <label for="department">Department *</label>
-            <select id="department" name="department" required>
-              <option value="">Select your department</option>
-              <option value="HR">Human Resources</option>
-              <option value="Finance">Finance</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Operations">Operations</option>
-              <option value="Sales">Sales</option>
-              <option value="Coffee Production">Coffee Production</option>
-              <option value="Retail">Retail</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <div style="width:120px">
-            <label for="urgency">Urgency *</label>
-            <select id="urgency" name="urgency" required>
-              <option value="">Select</option>
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-              <option value="Critical">Critical</option>
-            </select>
+            <h2>Fast help for your work</h2>
+            <p class="brand-desc">
+              Submit your issue and our IT team will respond quickly. Include the ticket ID in follow-ups.
+            </p>
+            <small class="tip">Tip: Attach screenshots in the admin panel (coming soon).</small>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="issue">Issue Description *</label>
-          <textarea id="issue" name="issue" placeholder="Please describe your issue in detail..." required></textarea>
+        <!-- right form panel inside the card -->
+        <div class="ticket-form">
+          <div class="form-header">
+            <div>
+              <h3>Submit a support ticket</h3>
+              <p class="muted">Please describe your issue clearly — our team will get back to you.</p>
+            </div>
+            <div class="meta">Support System <strong>v1.0</strong></div>
+          </div>
+
+          <form id="supportForm" autocomplete="off">
+            <div class="form-row">
+              <label for="name">Your Name *</label>
+              <input id="name" name="name" type="text" placeholder="Enter your full name" required />
+            </div>
+
+            <div class="form-row split">
+              <div class="col">
+                <label for="department">Department *</label>
+                <select id="department" name="department" required>
+                  <option value="">Select your department</option>
+                  <option value="HR">Human Resources</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Operations">Operations</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Coffee Production">Coffee Production</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="col small">
+                <label for="urgency">Urgency *</label>
+                <select id="urgency" name="urgency" required>
+                  <option value="">Select</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                  <option value="Critical">Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label for="issue">Issue Description *</label>
+              <textarea id="issue" name="issue" placeholder="Please describe your issue in detail..." required></textarea>
+            </div>
+
+            <div class="form-row">
+              <button id="submitBtn" class="submit-btn" type="submit">Submit Ticket</button>
+            </div>
+
+            <div id="loading" class="loading" aria-hidden="true">
+              <div class="spinner" role="img" aria-label="Loading"></div>
+              <div class="loading-text">Submitting your ticket...</div>
+            </div>
+
+            <div id="responseMessage" class="response-message" role="status"></div>
+
+            <div class="footer-note">Tomoca Coffee IT Department | Support System v1.0</div>
+          </form>
         </div>
-
-        <button type="submit" class="submit-btn" id="submitBtn">Submit Ticket</button>
-
-        <div class="loading" id="loading" aria-hidden="true">
-          <div class="spinner" role="img" aria-label="Loading"></div>
-          <div style="font-size:0.9rem;color:var(--muted);margin-top:6px">Submitting your ticket...</div>
-        </div>
-
-        <div id="responseMessage" class="response-message" role="status" aria-live="polite"></div>
-
-        <div class="footer" style="margin-top:12px">Tomoca Coffee IT Department | Support System v1.0</div>
-      </form>
-    </div>
+      </div>
+    </main>
   </div>
 
-  <!-- KEEP YOUR BACKEND CALLS EXACTLY AS BEFORE (Render backend) -->
+  <!-- KEEP backend URL unchanged -->
   <script>
   (function(){
     const form = document.getElementById('supportForm');
@@ -258,9 +121,7 @@
     const loading = document.getElementById('loading');
     const responseMessage = document.getElementById('responseMessage');
 
-    function showLoading(on){
-      loading.style.display = on ? 'block' : 'none';
-    }
+    function showLoading(on){ loading.style.display = on ? 'flex' : 'none'; }
     function showMessage(type, html){
       responseMessage.className = 'response-message ' + (type || '');
       responseMessage.innerHTML = html;
@@ -270,7 +131,6 @@
     form.addEventListener('submit', async function(e){
       e.preventDefault();
 
-      // exact same IDs: name, department, urgency, issue
       const formData = {
         name: document.getElementById('name').value.trim(),
         department: document.getElementById('department').value,
@@ -278,7 +138,6 @@
         issue: document.getElementById('issue').value.trim()
       };
 
-      // basic client-side validation
       if (!formData.name || !formData.department || !formData.urgency || !formData.issue) {
         showMessage('error', '❌ Please fill in all required fields.');
         return;
@@ -291,7 +150,6 @@
       responseMessage.style.display = 'none';
 
       try {
-        // *** NO CHANGE TO BACKEND URL — uses Render domain you provided earlier ***
         const response = await fetch('https://tomoca.onrender.com/submit-ticket', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -302,11 +160,7 @@
 
         responseMessage.style.display = 'block';
         if (data && data.success) {
-          showMessage('success', `
-            ✅ <strong>Ticket Submitted Successfully!</strong><br>
-            Your Ticket ID: <code>${data.ticketId}</code><br>
-            <small>The IT team has been notified and will contact you shortly.</small>
-          `);
+          showMessage('success', `✅ <strong>Ticket Submitted Successfully!</strong><br>Your Ticket ID: <code>${data.ticketId}</code><br><small>The IT team has been notified and will contact you shortly.</small>`);
           form.reset();
         } else {
           const msg = (data && data.message) ? data.message : 'Failed to submit ticket.';
