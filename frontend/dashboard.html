@@ -1,0 +1,70 @@
+<!-- frontend/dashboard.html -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin Dashboard — Tomoca</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#4e2b18,#d4a373);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+  .card{background:#fff;padding:20px;border-radius:12px;max-width:1000px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,0.18)}
+  .stats{display:flex;gap:12px;flex-wrap:wrap}
+  .stat{flex:1;min-width:150px;padding:14px;border-radius:8px;background:#faf7f4}
+  #recentList{margin-top:12px;border-radius:8px;overflow:hidden}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h3>Admin Dashboard</h3>
+    <p>Quick overview — append <code>?admin=YOUR_SECRET</code> to the URL to enable admin actions.</p>
+
+    <div class="stats" id="stats">
+      <div class="stat">Open: <strong id="stat-open">—</strong></div>
+      <div class="stat">In Progress: <strong id="stat-inprogress">—</strong></div>
+      <div class="stat">Resolved: <strong id="stat-resolved">—</strong></div>
+      <div class="stat">Total: <strong id="stat-total">—</strong></div>
+    </div>
+
+    <h4 style="margin-top:14px">Latest Tickets</h4>
+    <div id="recentList"></div>
+    <div style="margin-top:14px"><a href="tickets.html?admin=" style="text-decoration:none;background:#8B4513;color:#fff;padding:8px 12px;border-radius:8px">Open Ticket Manager</a></div>
+  </div>
+
+<script src="js/utils.js"></script>
+<script src="js/admin.js"></script>
+<script>
+  (async function(){
+    const recentList = document.getElementById('recentList');
+    const so = document.getElementById('stat-open');
+    const si = document.getElementById('stat-inprogress');
+    const sr = document.getElementById('stat-resolved');
+    const st = document.getElementById('stat-total');
+
+    try {
+      const r = await window._admin.fetchRecentTickets(10);
+      if (r && r.success && Array.isArray(r.tickets)) {
+        recentList.innerHTML = r.tickets.map(t => `<div style="padding:10px;border-bottom:1px solid #f3f3f3">
+          <div style="font-weight:700">${t.name} <small style="color:#666">(${t.department})</small></div>
+          <div style="color:#666;margin-top:6px">${t.id} • ${window._utils.formatDate(t.createdAt||t.timestamp)} • ${t.urgency}</div>
+        </div>`).join('');
+        // quick stats
+        const counts = { open:0, in_progress:0, resolved:0 };
+        r.tickets.forEach(t => {
+          const s = (t.status || 'open').toLowerCase().replace(' ', '_');
+          if (counts[s] !== undefined) counts[s] += 1;
+        });
+        so.textContent = counts.open;
+        si.textContent = counts.in_progress;
+        sr.textContent = counts.resolved;
+        st.textContent = r.total || r.tickets.length;
+      } else {
+        recentList.innerHTML = '<div style="padding:12px">Unable to load tickets.</div>';
+      }
+    } catch (err) {
+      console.error(err);
+      recentList.innerHTML = '<div style="padding:12px">Error loading tickets.</div>';
+    }
+  })();
+</script>
+</body>
+</html>
