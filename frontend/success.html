@@ -1,0 +1,54 @@
+<!-- frontend/success.html -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ticket Submitted — Tomoca</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#4e2b18,#d4a373);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .card{background:#fff;padding:28px;border-radius:12px;max-width:700px;box-shadow:0 12px 30px rgba(0,0,0,0.18);text-align:center}
+  .ticket{font-family:monospace;background:#f7f2ec;padding:10px;border-radius:8px;display:inline-block;margin-top:12px}
+  button{margin-top:16px;padding:10px 14px;border-radius:8px;border:none;background:#8B4513;color:#fff;cursor:pointer}
+  a{display:block;margin-top:12px;color:#555}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>Thank you — ticket submitted</h2>
+    <p>Your ticket was created successfully. Keep this ID for follow-up.</p>
+    <div id="ticketId" class="ticket">—</div>
+    <div>
+      <button id="copyBtn">Copy Ticket ID</button>
+      <a id="trackLink" href="#">Track this ticket</a>
+      <a href="index.html" style="margin-top:10px;display:inline-block">Submit another ticket</a>
+    </div>
+  </div>
+
+<script src="js/utils.js"></script>
+<script>
+  (function(){
+    const p = new URLSearchParams(location.search);
+    const ticket = p.get('ticket') || '';
+    const ticketEl = document.getElementById('ticketId');
+    const copyBtn = document.getElementById('copyBtn');
+    const trackLink = document.getElementById('trackLink');
+
+    ticketEl.textContent = ticket || '—';
+    trackLink.href = ticket ? `track.html?id=${encodeURIComponent(ticket)}` : 'track.html';
+
+    copyBtn.addEventListener('click', async () => {
+      if (!ticket) return;
+      try {
+        await window._utils.copyToClipboard(ticket);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(()=> copyBtn.textContent='Copy Ticket ID',1200);
+      } catch(e) {
+        alert('Copy failed');
+      }
+    });
+  })();
+</script>
+</body>
+</html>
