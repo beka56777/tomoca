@@ -1,0 +1,52 @@
+<!-- frontend/contact-it.html -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Contact IT — Tomoca</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#4e2b18,#d4a373);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+  .card{background:#fff;padding:22px;border-radius:12px;max-width:760px;box-shadow:0 12px 30px rgba(0,0,0,0.18);width:100%}
+  input,textarea,button{padding:10px;border-radius:8px;border:1px solid #eee}
+  .info{margin-top:8px;color:#666}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h3>Contact IT</h3>
+    <p>If you need immediate assistance, email or call the IT team. Use this form to send a message (it opens your email client).</p>
+
+    <form id="contactForm">
+      <div style="margin-bottom:8px"><input id="name" placeholder="Your name" style="width:100%" required></div>
+      <div style="margin-bottom:8px"><input id="email" placeholder="Your email" style="width:100%" required></div>
+      <div style="margin-bottom:8px"><input id="subject" placeholder="Subject" style="width:100%"></div>
+      <div style="margin-bottom:8px"><textarea id="message" placeholder="Message" style="width:100%;min-height:120px"></textarea></div>
+      <button type="submit">Send via Email</button>
+    </form>
+
+    <div class="info">
+      <p><strong>Phone:</strong> +251 9xx xxx xxx</p>
+      <p><strong>Email (IT):</strong> <a href="mailto:it@tomoca.coffee">it@tomoca.coffee</a></p>
+      <p><strong>Office hours:</strong> Mon–Fri, 8:00–17:00</p>
+    </div>
+  </div>
+
+<script>
+  (function(){
+    const form = document.getElementById('contactForm');
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('name').value || 'No name';
+      const email = document.getElementById('email').value || '';
+      const subject = document.getElementById('subject').value || 'IT request';
+      const message = document.getElementById('message').value || '';
+      const body = `From: ${name} (${email})%0D%0A%0D%0A${encodeURIComponent(message)}`;
+      // opens user's mail client as fallback (safe & doesn't require backend)
+      location.href = `mailto:it@tomoca.coffee?subject=${encodeURIComponent(subject)}&body=${body}`;
+    });
+  })();
+</script>
+</body>
+</html>
