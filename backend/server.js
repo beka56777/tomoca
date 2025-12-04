@@ -1,8 +1,10 @@
-// Backend/server.js
-const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
-require('dotenv').config();
+// backend/server.js
+const express = require("express");
+const axios = require("axios");
+const cors = require("cors");
+require("dotenv").config();
+
+const ticketRoutes = require("./routes/tickets"); // NEW — load extra routes
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,13 +13,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Your Telegram credentials (we'll set these in environment variables)
+// Telegram credentials
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 // Generate unique ticket ID
 function generateTicketId() {
-  return 'TOM-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5).toUpperCase();
+  return (
+    "TOM-" +
+    Date.now() +
+    "-" +
+    Math.random().toString(36).substr(2, 5).toUpperCase()
+  );
 }
 
 // Send message to Telegram
@@ -28,41 +35,43 @@ async function sendTelegramMessage(message) {
       {
         chat_id: TELEGRAM_CHAT_ID,
         text: message,
-        parse_mode: 'HTML'
+        parse_mode: "HTML",
       }
     );
     return response.data;
   } catch (error) {
-    console.error('Telegram API error:', error.response?.data || error.message);
+    console.error("Telegram API error:", error.response?.data || error.message);
     throw error;
   }
 }
 
-// Health check endpoint
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Tomoca IT Support System is running!',
-    status: 'active'
+// --------------------------------------
+// HEALTH CHECK
+// --------------------------------------
+app.get("/", (req, res) => {
+  res.json({
+    message: "Tomoca IT Support System is running!",
+    status: "active",
   });
 });
 
-// Submit ticket endpoint
-app.post('/submit-ticket', async (req, res) => {
+// --------------------------------------
+// SUBMIT TICKET (Your existing working endpoint)
+// --------------------------------------
+app.post("/submit-ticket", async (req, res) => {
   try {
     const { name, department, urgency, issue } = req.body;
 
-    // Basic validation
     if (!name || !department || !urgency || !issue) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required.'
+        message: "All fields are required.",
       });
     }
 
     const ticketId = generateTicketId();
     const timestamp = new Date().toLocaleString();
 
-    // Format message for Telegram
     const telegramMessage = `
 🆕 <b>NEW IT SUPPORT TICKET</b>
 
@@ -76,25 +85,30 @@ ${issue}
 ⏰ <b>Submitted:</b> ${timestamp}
     `.trim();
 
-    // Send to Telegram
     await sendTelegramMessage(telegramMessage);
 
     res.json({
       success: true,
-      ticketId: ticketId,
-      message: 'Ticket submitted successfully to IT team'
+      ticketId,
+      message: "Ticket submitted successfully to IT team",
     });
-
   } catch (error) {
-    console.error('Error submitting ticket:', error);
+    console.error("Error submitting ticket:", error);
     res.status(500).json({
       success: false,
-      message: 'Error submitting ticket. Please try again or contact IT directly.'
+      message: "Error submitting ticket. Please try again or contact IT directly.",
     });
   }
 });
 
-// Start server
+// --------------------------------------
+// CONNECT EXTRA ROUTES (tracking, history, admin, update)
+// --------------------------------------
+app.use("/", ticketRoutes); // NEW — all new routes live here
+
+// --------------------------------------
+// START SERVER
+// --------------------------------------
 app.listen(PORT, () => {
   console.log(`🚀 Tomoca Support Server running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}`);
