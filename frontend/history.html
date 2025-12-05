@@ -1,70 +1,75 @@
-<!-- frontend/history.html -->
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Ticket History — Tomoca</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#4e2b18,#d4a373);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
-  .card{background:#fff;padding:22px;border-radius:12px;max-width:760px;box-shadow:0 12px 30px rgba(0,0,0,0.18);width:100%}
-  input,button{padding:10px;border-radius:8px;border:1px solid #eee}
-  .list{margin-top:16px}
-  .ticket{padding:10px;border-bottom:1px solid #f3f3f3}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ticket History — Tomoca IT</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f6f4f2;padding:28px}
+    .card{max-width:820px;margin:0 auto;background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    h1{margin:0 0 8px;font-size:20px}
+    textarea{width:100%;min-height:90px;padding:10px;border-radius:8px;border:1px solid #ddd}
+    button{margin-top:10px;padding:10px 14px;border-radius:8px;border:0;background:#8b4513;color:#fff;font-weight:700;cursor:pointer}
+    .list{margin-top:12px}
+    .item{padding:10px;border-radius:8px;border:1px solid #eee;background:#fafafa;margin-bottom:8px}
+    .small{font-size:0.9rem;color:#444}
+  </style>
 </head>
 <body>
   <div class="card">
-    <h3>My Ticket History</h3>
-    <p>Search by name or department to view past tickets (prototype)</p>
+    <h1>Ticket Lookup (multiple)</h1>
+    <p class="small">Paste one Ticket ID per line, then click "Lookup".</p>
 
-    <div style="display:flex;gap:8px">
-      <input id="q" placeholder="Your full name or ticket ID" style="flex:1" />
-      <button id="search">Search</button>
-    </div>
+    <textarea id="ids" placeholder="TOM-176..."></textarea>
+    <button id="btnLookup">Lookup tickets</button>
 
     <div id="list" class="list"></div>
   </div>
 
-<script src="js/utils.js"></script>
 <script>
-  (function(){
-    const API_BASE = 'https://tomoca.onrender.com';
-    const searchBtn = document.getElementById('search');
-    const q = document.getElementById('q');
-    const list = document.getElementById('list');
+  const BACKEND_BASE = 'https://tomoca.onrender.com';
+  const btn = document.getElementById('btnLookup');
+  const ta = document.getElementById('ids');
+  const list = document.getElementById('list');
 
-    async function doSearch(qv) {
-      list.innerHTML = 'Loading...';
+  btn.addEventListener('click', async () => {
+    const raw = ta.value.trim();
+    list.innerHTML = '';
+    if (!raw) { list.innerHTML = '<div class="small">Please paste at least one Ticket ID.</div>'; return; }
+
+    const ids = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    for (const id of ids) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'item';
+      wrapper.innerHTML = `<strong>${id}</strong> — loading...`;
+      list.appendChild(wrapper);
+
       try {
-        const url = `${API_BASE}/tickets?q=${encodeURIComponent(qv)}&limit=50`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.success && Array.isArray(data.tickets)) {
-          if (!data.tickets.length) list.innerHTML = '<div class="ticket">No results</div>';
-          else list.innerHTML = data.tickets.map(t => `
-            <div class="ticket">
-              <div style="font-weight:700">${t.name} <small style="color:#666">(${t.department})</small></div>
-              <div style="margin-top:6px">${(t.issue||'').slice(0,140)}</div>
-              <div style="margin-top:6px;color:#666">ID: <code>${t.id}</code> • ${window._utils.formatDate(t.createdAt||t.timestamp)} • ${t.status||'open'}</div>
-            </div>
-          `).join('');
-        } else {
-          list.innerHTML = '<div class="ticket">No results or error.</div>';
+        const res = await fetch(`${BACKEND_BASE}/track-ticket?id=${encodeURIComponent(id)}`);
+        if (!res.ok) {
+          const err = await res.json().catch(()=>null);
+          wrapper.innerHTML = `<strong>${id}</strong> — <span style="color:#b33">${err?.message || res.statusText}</span>`;
+          continue;
         }
+        const data = await res.json();
+        if (!data.success) {
+          wrapper.innerHTML = `<strong>${id}</strong> — <span style="color:#b33">${data.message || 'Not found'}</span>`;
+          continue;
+        }
+        const t = data.ticket;
+        wrapper.innerHTML = `
+          <div><strong>ID:</strong> ${t.id}</div>
+          <div><strong>Status:</strong> ${t.status}</div>
+          <div><strong>Dept:</strong> ${t.department}</div>
+          <div><strong>Urgency:</strong> ${t.urgency}</div>
+          <div class="small"><strong>Created:</strong> ${new Date(t.createdAt).toLocaleString()}</div>
+        `;
       } catch (err) {
         console.error(err);
-        list.innerHTML = '<div class="ticket">Network error.</div>';
+        wrapper.innerHTML = `<strong>${id}</strong> — <span style="color:#b33">Network error</span>`;
       }
     }
-
-    searchBtn.addEventListener('click', ()=> {
-      const v = q.value.trim();
-      if (!v) return;
-      doSearch(v);
-    });
-  })();
+  });
 </script>
 </body>
 </html>
