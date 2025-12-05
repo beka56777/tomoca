@@ -57,32 +57,41 @@ app.get("/", (req, res) => {
 // ----------------------------
 // SUBMIT TICKET
 // ----------------------------
+// --------------------------------------
+// SUBMIT TICKET — SAVES TO JSON + Telegram
+// --------------------------------------
 app.post("/submit-ticket", async (req, res) => {
   try {
     const { name, department, urgency, issue } = req.body;
 
     if (!name || !department || !urgency || !issue) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required."
+      });
     }
 
     const ticketId = generateTicketId();
     const timestamp = new Date().toLocaleString();
 
-    const ticketObj = {
+    // Build ticket object
+    const ticketData = {
       ticketId,
       name,
       department,
       urgency,
       issue,
-      status: "Pending",
-      submitted_at: timestamp,
-      updated_at: timestamp,
+      status: "open",
+      created_at: timestamp,
+      updated_at: timestamp
     };
 
-    // Format message
-    const message = `
+    // Save to tickets.json
+    const { saveNewTicketToJson } = require("./controllers/ticketsController");
+    await saveNewTicketToJson(ticketData);
+
+    // Send to Telegram
+    const telegramMessage = `
 🆕 <b>NEW IT SUPPORT TICKET</b>
 
 🎫 <b>Ticket ID:</b> <code>${ticketId}</code>
@@ -95,28 +104,24 @@ ${issue}
 ⏰ <b>Submitted:</b> ${timestamp}
     `.trim();
 
-    // Notify IT Team
-    await sendTelegramMessage(message);
+    await sendTelegramMessage(telegramMessage);
 
-    // Save ticket to JSON file
-    await axios.post(
-      `${process.env.RENDER_EXTERNAL_URL}/save-ticket`,
-      ticketObj
-    );
-
+    // respond
     res.json({
       success: true,
       ticketId,
-      message: "Ticket submitted successfully",
+      message: "Ticket submitted successfully!"
     });
-  } catch (err) {
-    console.error("Submit Ticket Error:", err);
+
+  } catch (error) {
+    console.error("Submit error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error. Try again.",
+      message: "Error submitting ticket."
     });
   }
 });
+
 
 // ----------------------------
 // EXTRA ROUTES (tracking, history, update)
