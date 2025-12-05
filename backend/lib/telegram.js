@@ -5,7 +5,8 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 if (!BOT_TOKEN || !CHAT_ID) {
-  console.warn('WARNING: Telegram token or chat id not set in environment variables.');
+  // we'll log but not throw — controllers will handle errors gracefully
+  console.warn('Telegram credentials not set (TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID). Telegram notifications will fail.');
 }
 
 async function sendMessage(text, parse_mode = 'HTML') {
@@ -14,20 +15,10 @@ async function sendMessage(text, parse_mode = 'HTML') {
   }
 
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const payload = { chat_id: CHAT_ID, text, parse_mode };
 
-  const payload = {
-    chat_id: CHAT_ID,
-    text,
-    parse_mode
-  };
-
-  try {
-    const r = await axios.post(url, payload);
-    return r.data;
-  } catch (err) {
-    // bubble up the useful message
-    throw err.response?.data || err.message || err;
-  }
+  const res = await axios.post(url, payload);
+  return res.data;
 }
 
 module.exports = { sendMessage };
