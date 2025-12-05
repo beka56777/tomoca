@@ -5,14 +5,12 @@ const path = require('path');
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const TICKETS_FILE = path.join(DATA_DIR, 'tickets.json');
 
+// Ensure folder + file exist
 async function ensureDataFile() {
   try {
-    // create data dir if missing
     await fs.mkdir(DATA_DIR, { recursive: true });
-    // try to access file
     await fs.access(TICKETS_FILE);
   } catch (err) {
-    // if file doesn't exist, create with empty array
     await fs.writeFile(TICKETS_FILE, '[]', 'utf8');
   }
 }
@@ -22,8 +20,7 @@ async function readTickets() {
   const raw = await fs.readFile(TICKETS_FILE, 'utf8');
   try {
     return JSON.parse(raw || '[]');
-  } catch (err) {
-    // corrupt file -> reset to empty array
+  } catch {
     await fs.writeFile(TICKETS_FILE, '[]', 'utf8');
     return [];
   }
