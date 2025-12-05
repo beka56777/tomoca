@@ -1,9 +1,16 @@
-const express = require("express");
+// backend/routes/tickets.js
+const express = require('express');
 const router = express.Router();
+const controller = require('../controllers/ticketsController');
+const adminAuth = require('../middleware/auth');
 
-const controller = require("../controllers/ticketsController");
+// Public endpoints
+router.post('/submit-ticket', controller.createTicket);
+router.get('/track-ticket', controller.trackTicketPublic);
 
-// PUBLIC endpoint
-router.get("/track-ticket", controller.trackTicketPublic);
+// Admin (protected)
+router.get('/tickets', adminAuth, controller.listTickets);
+router.get('/ticket', adminAuth, controller.getTicket);
+router.post('/update-ticket', adminAuth, controller.updateTicket);
 
 module.exports = router;
