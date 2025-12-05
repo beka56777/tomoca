@@ -4,12 +4,11 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 
-const ticketRoutes = require("./routes/tickets"); // extra routes (track/history/admin)
+const ticketRoutes = require("./routes/tickets");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -27,7 +26,7 @@ function generateTicketId() {
   );
 }
 
-// Send message to Telegram
+// Send Telegram Message
 async function sendTelegramMessage(message) {
   try {
     const response = await axios.post(
@@ -40,52 +39,50 @@ async function sendTelegramMessage(message) {
     );
     return response.data;
   } catch (error) {
-    console.error("Telegram API error:", error.response?.data || error.message);
+    console.error("Telegram Error:", error.response?.data || error.message);
     throw error;
   }
 }
 
-// ==================================================
+// ----------------------------
 // HEALTH CHECK
-// ==================================================
+// ----------------------------
 app.get("/", (req, res) => {
   res.json({
-    message: "Tomoca IT Support System is running!",
     status: "active",
+    message: "Tomoca IT Support Backend Running",
   });
 });
 
-// ==================================================
-// SUBMIT TICKET (working version + save to JSON)
-// ==================================================
+// ----------------------------
+// SUBMIT TICKET
+// ----------------------------
 app.post("/submit-ticket", async (req, res) => {
   try {
     const { name, department, urgency, issue } = req.body;
 
     if (!name || !department || !urgency || !issue) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required.",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     const ticketId = generateTicketId();
     const timestamp = new Date().toLocaleString();
 
-    // data we will save
-    const ticketData = {
+    const ticketObj = {
       ticketId,
       name,
       department,
       urgency,
       issue,
-      status: "Open",
-      created_at: timestamp,
+      status: "Pending",
+      submitted_at: timestamp,
       updated_at: timestamp,
     };
 
-    // 1️⃣ Telegram message
-    const telegramMessage = `
+    // Format message
+    const message = `
 🆕 <b>NEW IT SUPPORT TICKET</b>
 
 🎫 <b>Ticket ID:</b> <code>${ticketId}</code>
@@ -98,37 +95,37 @@ ${issue}
 ⏰ <b>Submitted:</b> ${timestamp}
     `.trim();
 
-    await sendTelegramMessage(telegramMessage);
+    // Notify IT Team
+    await sendTelegramMessage(message);
 
-    // 2️⃣ Save ticket to JSON DB
-    const { saveNewTicketToJson } = require("./controllers/ticketsController");
-    await saveNewTicketToJson(ticketData);
+    // Save ticket to JSON file
+    await axios.post(
+      `${process.env.RENDER_EXTERNAL_URL}/save-ticket`,
+      ticketObj
+    );
 
-    // 3️⃣ success
     res.json({
       success: true,
       ticketId,
-      message: "Ticket submitted successfully to IT team",
+      message: "Ticket submitted successfully",
     });
-  } catch (error) {
-    console.error("Error submitting ticket:", error);
+  } catch (err) {
+    console.error("Submit Ticket Error:", err);
     res.status(500).json({
       success: false,
-      message:
-        "Error submitting ticket. Please try again or contact IT directly.",
+      message: "Server error. Try again.",
     });
   }
 });
 
-// ==================================================
-// CONNECT EXTRA ROUTES
-// ==================================================
+// ----------------------------
+// EXTRA ROUTES (tracking, history, update)
+// ----------------------------
 app.use("/", ticketRoutes);
 
-// ==================================================
+// ----------------------------
 // START SERVER
-// ==================================================
+// ----------------------------
 app.listen(PORT, () => {
-  console.log(`🚀 Tomoca Support Server running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}`);
+  console.log(`🚀 Tomoca Support Backend running on port ${PORT}`);
 });
