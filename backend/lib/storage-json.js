@@ -5,7 +5,6 @@ const path = require('path');
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const TICKETS_FILE = path.join(DATA_DIR, 'tickets.json');
 
-// Ensure folder + file exist
 async function ensureDataFile() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
