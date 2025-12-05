@@ -1,49 +1,45 @@
 // backend/controllers/ticketsController.js
-const { readTickets, writeTickets } = require("../lib/storage-json");
+const Ticket = require('../models/Ticket');
 
 // --------------------------------------
 // FETCH SINGLE TICKET
 // --------------------------------------
 async function getTicket(id) {
-  const tickets = await readTickets();
-  return tickets.find(t => t.ticketId === id);
+  return await Ticket.findOne({ ticketId: id });
 }
 
 // --------------------------------------
 // FETCH ALL TICKETS
 // --------------------------------------
 async function getAllTickets() {
-  return await readTickets();
+  return await Ticket.find({});
 }
 
 // --------------------------------------
 // UPDATE TICKET STATUS
 // --------------------------------------
 async function updateTicketStatus(id, newStatus) {
-  const tickets = await readTickets();
-  const ticket = tickets.find(t => t.ticketId === id);
+  const ticket = await Ticket.findOneAndUpdate(
+    { ticketId: id },
+    { status: newStatus, updated_at: new Date() },
+    { new: true }
+  );
 
-  if (!ticket) return null;
-
-  ticket.status = newStatus;
-  ticket.updated_at = new Date().toISOString();
-
-  await writeTickets(tickets);
-  return ticket;
+  return ticket; // null if not found
 }
 
 // --------------------------------------
-// SAVE NEW TICKET FROM /submit-ticket
+// SAVE NEW TICKET
 // --------------------------------------
-async function saveNewTicketToJson(ticket) {
-  const tickets = await readTickets();
-  tickets.push(ticket);
-  await writeTickets(tickets);
+async function saveNewTicket(ticketData) {
+  const ticket = new Ticket(ticketData);
+  await ticket.save();
+  return ticket;
 }
 
 module.exports = {
   getTicket,
   getAllTickets,
   updateTicketStatus,
-  saveNewTicketToJson
+  saveNewTicket
 };
