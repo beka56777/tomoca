@@ -4,7 +4,7 @@ const axios = require("axios");
 const cors = require("cors");
 require("dotenv").config();
 
-const ticketRoutes = require("./routes/tickets"); // NEW — load extra routes
+const ticketRoutes = require("./routes/tickets"); // extra routes (track/history/admin)
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,9 +45,9 @@ async function sendTelegramMessage(message) {
   }
 }
 
-// --------------------------------------
+// ==================================================
 // HEALTH CHECK
-// --------------------------------------
+// ==================================================
 app.get("/", (req, res) => {
   res.json({
     message: "Tomoca IT Support System is running!",
@@ -55,9 +55,9 @@ app.get("/", (req, res) => {
   });
 });
 
-// --------------------------------------
-// SUBMIT TICKET (Your existing working endpoint)
-// --------------------------------------
+// ==================================================
+// SUBMIT TICKET (working version + save to JSON)
+// ==================================================
 app.post("/submit-ticket", async (req, res) => {
   try {
     const { name, department, urgency, issue } = req.body;
@@ -72,6 +72,19 @@ app.post("/submit-ticket", async (req, res) => {
     const ticketId = generateTicketId();
     const timestamp = new Date().toLocaleString();
 
+    // data we will save
+    const ticketData = {
+      ticketId,
+      name,
+      department,
+      urgency,
+      issue,
+      status: "Open",
+      created_at: timestamp,
+      updated_at: timestamp,
+    };
+
+    // 1️⃣ Telegram message
     const telegramMessage = `
 🆕 <b>NEW IT SUPPORT TICKET</b>
 
@@ -87,6 +100,11 @@ ${issue}
 
     await sendTelegramMessage(telegramMessage);
 
+    // 2️⃣ Save ticket to JSON DB
+    const { saveNewTicketToJson } = require("./controllers/ticketsController");
+    await saveNewTicketToJson(ticketData);
+
+    // 3️⃣ success
     res.json({
       success: true,
       ticketId,
@@ -96,19 +114,20 @@ ${issue}
     console.error("Error submitting ticket:", error);
     res.status(500).json({
       success: false,
-      message: "Error submitting ticket. Please try again or contact IT directly.",
+      message:
+        "Error submitting ticket. Please try again or contact IT directly.",
     });
   }
 });
 
-// --------------------------------------
-// CONNECT EXTRA ROUTES (tracking, history, admin, update)
-// --------------------------------------
-app.use("/", ticketRoutes); // NEW — all new routes live here
+// ==================================================
+// CONNECT EXTRA ROUTES
+// ==================================================
+app.use("/", ticketRoutes);
 
-// --------------------------------------
+// ==================================================
 // START SERVER
-// --------------------------------------
+// ==================================================
 app.listen(PORT, () => {
   console.log(`🚀 Tomoca Support Server running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}`);
