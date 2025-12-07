@@ -1,151 +1,131 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Tickets</title>
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;background:#f6f4f2;padding:22px}
-    .card{max-width:1100px;margin:0 auto;background:#fff;padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
-    h1{margin:0 0 10px;font-size:20px}
-    .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-    input, select{padding:8px;border-radius:6px;border:1px solid #ddd}
-    button{padding:8px 10px;border-radius:6px;border:0;background:#8b4513;color:#fff;cursor:pointer}
-    table{width:100%;border-collapse:collapse;margin-top:12px}
-    th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
-    .small{font-size:0.9rem;color:#666}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin — Tickets</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;background:#f6f4f2;padding:22px}
+  .card{max-width:1100px;margin:0 auto;background:#fff;padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+  h1{margin:0 0 10px;font-size:20px}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+  input, select{padding:8px;border-radius:6px;border:1px solid #ddd}
+  button{padding:8px 10px;border-radius:6px;border:0;background:#8b4513;color:#fff;cursor:pointer}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+  .small{font-size:0.9rem;color:#666}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Admin — Tickets</h1>
+<div class="card">
+  <h1>Admin — Tickets</h1>
 
-    <div class="controls">
-      <input id="q" placeholder="search query (id/name/issue)" style="flex:1" />
-      <select id="status">
-        <option value="">Any status</option>
-        <option value="open">Open</option>
-        <option value="in_progress">In Progress</option>
-        <option value="resolved">Resolved</option>
-      </select>
-      <input id="department" placeholder="Department" />
-      <button id="btnSearch">Search</button>
-      <button id="btnAuth">Set Admin Secret</button>
-    </div>
-
-    <div id="meta" class="small"></div>
-
-    <table id="tbl">
-      <thead><tr><th>ID</th><th>Name</th><th>Dept</th><th>Urgency</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
-      <tbody></tbody>
-    </table>
+  <div class="controls">
+    <input id="q" placeholder="search (id/name/issue)" style="flex:1" />
+    <select id="status">
+      <option value="">Any status</option>
+      <option value="open">Open</option>
+      <option value="in_progress">In Progress</option>
+      <option value="resolved">Resolved</option>
+    </select>
+    <input id="department" placeholder="Department" />
+    <button id="btnSearch">Search</button>
   </div>
 
+  <div id="meta" class="small"></div>
+
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th>ID</th><th>Name</th><th>Dept</th><th>Urgency</th><th>Status</th><th>Created</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
 <script>
-  // Edit if your backend is hosted elsewhere
-  const BACKEND_BASE = 'https://tomoca.onrender.com';
+const BACKEND_BASE = 'https://tomoca.onrender.com';
+let allTickets = [];
 
-  // admin secret stored only in sessionStorage
-  function getSecret() { return sessionStorage.getItem('admin_secret') || ''; }
-  function setSecret(v){ sessionStorage.setItem('admin_secret', v || ''); }
+document.getElementById('btnSearch').addEventListener('click', filterTickets);
+document.getElementById('q').addEventListener('keypress',(e)=>{ if(e.key==='Enter') filterTickets(); });
 
-  document.getElementById('btnAuth').addEventListener('click', () => {
-    const s = prompt('Enter ADMIN_SECRET (will be stored in this browser session only):','');
-    if (s) { setSecret(s); alert('Admin secret saved for this session.'); }
+async function loadTickets(){
+  try {
+    const res = await fetch(`${BACKEND_BASE}/tickets`);
+    const data = await res.json();
+    if(!data.success){ alert("Error: " + (data.message||'')); return; }
+    allTickets = data.tickets || [];
+    document.getElementById('meta').textContent = `Total tickets: ${allTickets.length}`;
+    renderTable(allTickets);
+  } catch(err){ console.error(err); alert("Network error"); }
+}
+
+function filterTickets(){
+  const q = document.getElementById('q').value.toLowerCase();
+  const status = document.getElementById('status').value;
+  const department = document.getElementById('department').value.toLowerCase();
+
+  const filtered = allTickets.filter(t=>{
+    const matchQ = t.ticketId.toLowerCase().includes(q) || t.name.toLowerCase().includes(q) || (t.issue||'').toLowerCase().includes(q);
+    const matchStatus = status ? t.status === status : true;
+    const matchDept = department ? t.department.toLowerCase().includes(department) : true;
+    return matchQ && matchStatus && matchDept;
   });
 
-  document.getElementById('btnSearch').addEventListener('click', fetchTickets);
-  document.getElementById('q').addEventListener('keypress', (e)=>{ if(e.key==='Enter') fetchTickets(); });
+  document.getElementById('meta').textContent = `Showing: ${filtered.length} of ${allTickets.length}`;
+  renderTable(filtered);
+}
 
-  async function fetchTickets(){
-    const q = document.getElementById('q').value.trim();
-    const status = document.getElementById('status').value;
-    const department = document.getElementById('department').value.trim();
-    const secret = getSecret();
+function renderTable(items){
+  const tbody = document.querySelector('#tbl tbody');
+  tbody.innerHTML = '';
+  items.forEach(t=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${t.ticketId}</td>
+      <td>${t.name}</td>
+      <td>${t.department}</td>
+      <td>${t.urgency}</td>
+      <td>${t.status || 'open'}</td>
+      <td>${new Date(t.created_at).toLocaleString()}</td>
+      <td>
+        <button onclick="viewTicket('${t.ticketId}')">View</button>
+        <button onclick="markResolved('${t.ticketId}')">Resolve</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
-    if (!secret) { if (!confirm('No admin secret found. This page requires an admin secret to fetch tickets. Proceed?')) return; }
-    const params = new URLSearchParams({ q, status, department, limit: 50, page: 1 }).toString();
-    const url = `${BACKEND_BASE}/tickets?${params}`;
+window.viewTicket = async function(id){
+  try{
+    const res = await fetch(`${BACKEND_BASE}/ticket?id=${encodeURIComponent(id)}`);
+    const data = await res.json();
+    if(!data.success){ alert(data.message || 'Not found'); return; }
+    const t = data.ticket;
+    alert(`Ticket ${t.ticketId}\n\nName: ${t.name}\nDept: ${t.department}\nUrgency: ${t.urgency}\nStatus: ${t.status}\n\nIssue:\n${t.issue}`);
+  }catch(e){ console.error(e); alert('Network error'); }
+};
 
-    try {
-      const res = await fetch(url, { headers: { 'x-admin-secret': secret } });
-      if (!res.ok) {
-        const err = await res.json().catch(()=>null);
-        alert('Error: ' + (err?.message || res.statusText));
-        return;
-      }
-      const data = await res.json();
-      document.getElementById('meta').textContent = `Total: ${data.total || 0} — Showing: ${data.tickets.length || 0}`;
-      renderTable(data.tickets || []);
-    } catch (err) {
-      console.error(err);
-      alert('Network error — check backend URL / console.');
-    }
-  }
-
-  function renderTable(items){
-    const tbody = document.querySelector('#tbl tbody');
-    tbody.innerHTML = '';
-    items.forEach(t=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${t.id}</td>
-        <td>${t.name}</td>
-        <td>${t.department}</td>
-        <td>${t.urgency}</td>
-        <td>${t.status || 'open'}</td>
-        <td>${new Date(t.createdAt).toLocaleString()}</td>
-        <td>
-          <button onclick="viewTicket('${t.id}')">View</button>
-          <button onclick="markResolved('${t.id}')">Mark Resolved</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+window.markResolved = async function(id){
+  if(!confirm("Mark ticket as resolved?")) return;
+  try{
+    const res = await fetch(`${BACKEND_BASE}/update-ticket`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ id, updates:{ status:'resolved' } })
     });
-  }
+    const data = await res.json();
+    if(!data.success){ alert('Failed: ' + (data.message||'')); return; }
+    alert("Ticket resolved");
+    loadTickets();
+  }catch(e){ console.error(e); alert("Network error"); }
+};
 
-  // view single ticket in new tab (admin route ticket?id=.. requires admin secret)
-  window.viewTicket = function(id){
-    const secret = getSecret();
-    if(!secret){ alert('Admin secret required'); return; }
-    // open a new window to ticket.html (not implemented here) or show simple fetch
-    (async ()=>{
-      try{
-        const res = await fetch(`${BACKEND_BASE}/ticket?id=${encodeURIComponent(id)}`, { headers: { 'x-admin-secret': secret }});
-        if(!res.ok){ alert('Error fetching ticket'); return; }
-        const data = await res.json();
-        if(!data.success){ alert(data.message || 'Not found'); return; }
-        const t = data.ticket;
-        alert(`Ticket ${t.id}\n\nName: ${t.name}\nDept: ${t.department}\nUrgency: ${t.urgency}\nStatus: ${t.status}\n\nIssue:\n${t.issue}`);
-      }catch(e){ console.error(e); alert('Network error'); }
-    })();
-  };
-
-  window.markResolved = function(id){
-    if (!confirm('Mark ticket as resolved?')) return;
-    const secret = getSecret();
-    if (!secret) { alert('Admin secret required'); return; }
-
-    (async ()=>{
-      try {
-        const res = await fetch(`${BACKEND_BASE}/update-ticket`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-admin-secret': secret
-          },
-          body: JSON.stringify({ id, updates: { status: 'resolved', notes: [`Marked resolved via admin UI`] } })
-        });
-        const data = await res.json();
-        if (!data.success) { alert('Error: ' + (data.message || 'Failed')); return; }
-        alert('Ticket updated');
-        fetchTickets();
-      } catch (err) {
-        console.error(err);
-        alert('Network error');
-      }
-    })();
-  };
+// initial load
+loadTickets();
 </script>
 </body>
 </html>

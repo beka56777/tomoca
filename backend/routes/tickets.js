@@ -3,23 +3,30 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controllers/ticketsController");
 
-// Public: get single ticket by id (frontend track.html calls this)
-router.get("/ticket", async (req, res) => {
+/* ============================================================
+   PUBLIC — Track a single ticket
+   Your frontend calls:  GET /track-ticket?id=TOM-123
+   ============================================================ */
+router.get("/track-ticket", async (req, res) => {
   try {
     const id = req.query.id;
-    if (!id) return res.status(400).json({ success: false, message: "id is required" });
+    if (!id)
+      return res.status(400).json({ success: false, message: "id is required" });
 
     const ticket = await controller.getTicket(id);
-    if (!ticket) return res.status(404).json({ success: false, message: "Ticket not found" });
+    if (!ticket)
+      return res.status(404).json({ success: false, message: "Ticket not found" });
 
     return res.json({ success: true, ticket });
   } catch (err) {
-    console.error("GET /ticket error:", err);
+    console.error("GET /track-ticket error:", err);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// Public: list all tickets (used by history.html / admin read)
+/* ============================================================
+   PUBLIC — Get all tickets
+   ============================================================ */
 router.get("/tickets", async (req, res) => {
   try {
     const tickets = await controller.getAllTickets();
@@ -30,14 +37,18 @@ router.get("/tickets", async (req, res) => {
   }
 });
 
-// Admin: get single ticket (protected by your admin middleware if you use it)
+/* ============================================================
+   ADMIN — Get one ticket
+   ============================================================ */
 router.get("/admin/ticket", async (req, res) => {
   try {
     const id = req.query.id;
-    if (!id) return res.status(400).json({ success: false, message: "id is required" });
+    if (!id)
+      return res.status(400).json({ success: false, message: "id is required" });
 
     const ticket = await controller.getTicket(id);
-    if (!ticket) return res.status(404).json({ success: false, message: "Ticket not found" });
+    if (!ticket)
+      return res.status(404).json({ success: false, message: "Ticket not found" });
 
     return res.json({ success: true, ticket });
   } catch (err) {
@@ -46,18 +57,25 @@ router.get("/admin/ticket", async (req, res) => {
   }
 });
 
-// Admin: update ticket (expects { id, status, assignTo, notes } in body)
+/* ============================================================
+   ADMIN — Update ticket
+   EXPECTS:
+   {
+      "id": "TOM-123",
+      "updates": { "status": "Resolved" }
+   }
+   ============================================================ */
 router.post("/update-ticket", async (req, res) => {
   try {
     const { id, updates } = req.body;
-    if (!id || !updates || typeof updates !== "object") {
+
+    if (!id || !updates)
       return res.status(400).json({ success: false, message: "id and updates required" });
-    }
 
-    const updated = await controller.updateTicketStatus(id, updates.status || undefined);
+    const updated = await controller.updateTicketStatus(id, updates.status);
 
-    // If controller returns null, ticket wasn't found
-    if (!updated) return res.status(404).json({ success: false, message: "Ticket not found" });
+    if (!updated)
+      return res.status(404).json({ success: false, message: "Ticket not found" });
 
     return res.json({ success: true, ticket: updated });
   } catch (err) {
@@ -66,13 +84,19 @@ router.post("/update-ticket", async (req, res) => {
   }
 });
 
-// Helper: save-ticket (used by server.js version that calls /save-ticket)
+/* ============================================================
+   SAVE TICKET FROM TELEGRAM BOT
+   (server.js calls this)
+   ============================================================ */
 router.post("/save-ticket", async (req, res) => {
   try {
     const ticket = req.body;
-    if (!ticket || !ticket.ticketId) return res.status(400).json({ success: false, message: "invalid ticket" });
+
+    if (!ticket || !ticket.ticketId)
+      return res.status(400).json({ success: false, message: "Invalid ticket" });
 
     await controller.saveNewTicketToJson(ticket);
+
     return res.json({ success: true });
   } catch (err) {
     console.error("POST /save-ticket error:", err);
