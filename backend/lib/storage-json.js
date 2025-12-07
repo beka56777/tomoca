@@ -1,33 +1,21 @@
 // backend/lib/storage-json.js
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const TICKETS_FILE = path.join(DATA_DIR, 'tickets.json');
+const filePath = path.join(__dirname, "..", "data", "tickets.json");
 
-async function ensureDataFile() {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    await fs.access(TICKETS_FILE);
-  } catch (err) {
-    await fs.writeFile(TICKETS_FILE, '[]', 'utf8');
-  }
+// Ensure file exists
+if (!fs.existsSync(filePath)) {
+  fs.writeFileSync(filePath, "[]", "utf8");
 }
 
 async function readTickets() {
-  await ensureDataFile();
-  const raw = await fs.readFile(TICKETS_FILE, 'utf8');
-  try {
-    return JSON.parse(raw || '[]');
-  } catch {
-    await fs.writeFile(TICKETS_FILE, '[]', 'utf8');
-    return [];
-  }
+  const data = fs.readFileSync(filePath, "utf8");
+  return JSON.parse(data);
 }
 
 async function writeTickets(tickets) {
-  await ensureDataFile();
-  await fs.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2), 'utf8');
+  fs.writeFileSync(filePath, JSON.stringify(tickets, null, 2));
 }
 
 module.exports = {
