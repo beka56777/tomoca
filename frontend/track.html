@@ -3,85 +3,179 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Track Ticket — Tomoca IT</title>
+  <title>Track Ticket — Tomoca IT (Enhanced)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body{font-family:Arial,Helvetica,sans-serif;background:#f6f4f2;padding:28px}
-    .card{max-width:720px;margin:0 auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
-    h1{margin:0 0 8px;font-size:20px}
-    label{display:block;margin-top:12px;font-weight:600}
-    input{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd}
-    button{margin-top:12px;padding:10px 14px;border-radius:8px;border:0;background:#8b4513;color:#fff;font-weight:700;cursor:pointer}
-    .result{margin-top:16px;padding:12px;border-radius:8px;background:#fafafa;border:1px solid #eee}
-    .muted{color:#666;font-size:0.9rem}
-    .small{font-size:0.9rem;color:#444}
+    :root{--bg:#f3f2f1;--card:#fff;--accent:#8B4513;--muted:#6b6b6b;--success:#2ea44f;--danger:#d04545;--radius:12px}
+    *{box-sizing:border-box}
+    body{font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),#fff);margin:0;padding:28px;color:#222}
+    .wrap{max-width:820px;margin:0 auto}
+    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 10px 28px rgba(0,0,0,0.06)}
+
+    h1{margin:0;font-size:20px}
+    .muted{color:var(--muted);font-size:13px}
+    label{display:block;margin-top:14px;font-weight:600}
+
+    .controls{display:flex;gap:8px;align-items:center;margin-top:12px}
+    input[type=text]{flex:1;padding:12px;border-radius:10px;border:1px solid #eee;font-size:14px}
+    button{padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+    button.ghost{background:transparent;color:var(--accent);border:1px solid #eee}
+
+    .result{margin-top:16px;padding:14px;border-radius:10px;background:#fafafa;border:1px solid #f0f0f0;display:none}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+    .meta{color:var(--muted);font-size:13px;margin-top:6px}
+
+    .status-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700}
+    .status-open{background:#fff4e6;color:#d97706}
+    .status-in_progress{background:#eef6ff;color:#2563eb}
+    .status-resolved{background:#e9fbe9;color:var(--success)}
+
+    .timeline{margin-top:12px;border-left:2px solid #f0f0f0;padding-left:12px}
+    .timeline .evt{margin-bottom:10px}
+    .evt small{color:var(--muted);display:block}
+
+    .actions{display:flex;gap:8px;margin-top:12px}
+
+    .empty{padding:14px;border-radius:10px;background:#fff;border:1px dashed #eee;color:var(--muted);text-align:center}
+
+    .skeleton{height:12px;background:linear-gradient(90deg,#eee,#f7f7f7,#eee);border-radius:6px;animation:shine 1.2s linear infinite}
+    @keyframes shine{to{transform:translateX(120%)}}
+
+    @media (max-width:700px){ .controls{flex-direction:column;align-items:stretch} .row{flex-direction:column} .actions{flex-wrap:wrap} }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Track your ticket</h1>
-    <p class="muted">Enter your Ticket ID (example: <code>TOM-1764764832218-H9QJ4</code>)</p>
+  <div class="wrap">
+    <div class="card">
+      <h1>Track your ticket</h1>
+      <p class="muted">Enter your Ticket ID (example: <code>TOM-1764764832218-H9QJ4</code>) or paste one from an email.</p>
 
-    <label for="ticketId">Ticket ID</label>
-    <input id="ticketId" placeholder="TOM-..." />
+      <label for="ticketId">Ticket ID</label>
+      <div class="controls">
+        <input id="ticketId" type="text" placeholder="TOM-..." aria-label="Ticket ID" />
+        <button id="btnTrack">Look up ticket</button>
+        <button id="btnClear" class="ghost" title="Clear input">Clear</button>
+      </div>
 
-    <button id="btnTrack">Look up ticket</button>
+      <div class="actions" style="margin-top:8px">
+        <button id="btnShare" class="ghost" title="Copy shareable link">Copy link</button>
+        <button id="btnDownload" class="ghost" title="Download JSON" style="display:none">Download JSON</button>
+      </div>
 
-    <div id="result" class="result" style="display:none"></div>
+      <div id="result" class="result" role="region" aria-live="polite"></div>
 
-    <p class="muted" style="margin-top:14px">If you don't have the ticket ID, ask IT for your Ticket ID.</p>
+      <p class="muted" style="margin-top:14px">If you don't have the ticket ID, ask IT for your Ticket ID.</p>
+    </div>
   </div>
 
 <script>
-  // YOUR backend domain:
+  // Backend endpoint left unchanged
   const BACKEND_BASE = 'https://tomoca.onrender.com';
 
   const btn = document.getElementById('btnTrack');
   const input = document.getElementById('ticketId');
   const result = document.getElementById('result');
+  const btnClear = document.getElementById('btnClear');
+  const btnShare = document.getElementById('btnShare');
+  const btnDownload = document.getElementById('btnDownload');
 
-  btn.addEventListener('click', async () => {
-    const id = input.value.trim();
-    result.style.display = 'block';
-    result.innerHTML = 'Searching...';
+  function showEmpty(){ result.style.display='block'; result.innerHTML = '<div class="empty">Enter a ticket ID and click <strong>Look up ticket</strong>.</div>'; btnDownload.style.display='none'; }
+  function showLoading(){ result.style.display='block'; result.innerHTML = '<div class="row"><div class="col"><div class="skeleton" style="width:60%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:40%;height:12px;margin-bottom:6px"></div><div class="skeleton" style="width:80%;height:12px"></div></div></div>'; btnDownload.style.display='none'; }
 
-    if (!id) {
-      result.innerHTML = '<span style="color:#b33">Please enter a Ticket ID.</span>';
-      return;
-    }
+  function escapeHtml(str){ return String(str||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
 
+  function formatDateFlexible(value){
+    if(!value) return '—';
+    const d = new Date(value);
+    if(isNaN(d)) return String(value);
+    return d.toLocaleString();
+  }
+
+  async function lookup(id){
+    if(!id) { showEmpty(); return; }
+    showLoading();
     try {
-      // FIXED ROUTE ↓
       const res = await fetch(`${BACKEND_BASE}/ticket?id=${encodeURIComponent(id)}`);
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        result.innerHTML = `<span style="color:#b33">Error: ${err?.message || res.statusText || res.status}</span>`;
+      if(!res.ok){
+        const err = await res.json().catch(()=>null);
+        result.innerHTML = `<div style="color:var(--danger)">Error: ${escapeHtml(err?.message || res.statusText || res.status)}</div>`;
         return;
       }
-
       const data = await res.json();
-
-      if (!data.success) {
-        result.innerHTML = `<strong>Not found</strong><div class="small">${data.message || 'No ticket found'}</div>`;
+      if(!data || !data.success){
+        result.innerHTML = `<div><strong>Not found</strong><div class="muted">${escapeHtml((data && data.message) || 'No ticket found')}</div></div>`;
         return;
       }
 
-      const t = data.ticket;
+      const t = data.ticket || data;
+      // Build enhanced UI while keeping fields (ticketId, status, created_at, updated_at, description)
+      const idVal = t.ticketId || t.id || t.ticketid || '';
+      const status = (t.status || 'open').toString();
+      const statusKey = status.toLowerCase().replace(' ','_');
+      const created = formatDateFlexible(t.createdAt || t.created_at || t.created);
+      const updated = formatDateFlexible(t.updatedAt || t.updated_at || t.updated);
+      const desc = escapeHtml(t.description || t.issue || t.message || t.summary || '—');
 
-      result.innerHTML = `
-        <div><strong>ID:</strong> ${t.ticketId}</div>
-        <div><strong>Status:</strong> ${t.status || '—'}</div>
-        <div><strong>Created:</strong> ${new Date(t.created_at).toLocaleString()}</div>
-        <div><strong>Updated:</strong> ${new Date(t.updated_at).toLocaleString()}</div>
-        <hr style="margin:10px 0" />
-        <div class="small"><strong>Issue</strong></div>
-        <div style="margin-top:6px">${t.description ? t.description.replace(/\n/g,'<br/>') : '—'}</div>
-      `;
-    } catch (err) {
+      let html = '';
+      html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div>
+          <h2 style="margin:0">${escapeHtml(idVal)}</h2>
+          <div class="meta">${escapeHtml(t.department || '')} • <span class="status-badge status-${statusKey}">${escapeHtml(status)}</span></div>
+        </div>
+        <div style="text-align:right">
+          <div class="meta">Created: ${escapeHtml(created)}</div>
+          <div class="meta">Updated: ${escapeHtml(updated)}</div>
+        </div>
+      </div>`;
+
+      html += `<hr style="margin:12px 0" />`;
+      html += `<div><strong class="muted">Issue</strong><div style="margin-top:8px">${desc.replace(/\n/g,'<br/>')}</div></div>`;
+
+      // optional timeline / history
+      if(Array.isArray(t.history) && t.history.length){
+        html += `<div style="margin-top:12px"><strong class="muted">Timeline</strong><div class="timeline">${t.history.map(ev => {
+          const who = escapeHtml(ev.actor || ev.user || ev.by || 'System');
+          const at = escapeHtml(formatDateFlexible(ev.at || ev.timestamp || ev.time || ev.date));
+          const note = escapeHtml(ev.note || ev.message || ev.action || '');
+          return `<div class="evt"><strong>${who}</strong><small>${at}</small><div style="margin-top:6px;color:var(--muted)">${note}</div></div>`;
+        }).join('')}</div></div>`;
+      }
+
+      result.innerHTML = html;
+      btnDownload.style.display = 'inline-block';
+
+      // wire download & share
+      btnDownload.onclick = ()=>{
+        const payload = JSON.stringify(t, null, 2);
+        const blob = new Blob([payload], {type:'application/json'});
+        const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`ticket-${idVal || id}.json`; a.click(); URL.revokeObjectURL(url);
+      };
+
+      btnShare.onclick = ()=>{
+        const url = new URL(location.href); url.searchParams.set('ticket', id);
+        const link = url.toString();
+        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(()=>alert('Link copied'));
+        else prompt('Copy link', link);
+      };
+
+    } catch(err){
       console.error(err);
-      result.innerHTML = `<span style="color:#b33">Network error — check backend URL and console.</span>`;
+      result.innerHTML = `<div style="color:var(--danger)">Network error — check backend URL or console</div>`;
     }
-  });
+  }
+
+  // wire UI events
+  btn.addEventListener('click', ()=> lookup(input.value.trim()));
+  input.addEventListener('keypress', e=>{ if(e.key === 'Enter') lookup(input.value.trim()); });
+  btnClear.addEventListener('click', ()=>{ input.value=''; showEmpty(); });
+
+  // if ?ticket=... present in URL, auto lookup
+  const qTicket = new URLSearchParams(location.search).get('ticket');
+  if(qTicket){ input.value = qTicket; lookup(qTicket); }
+
+  // initial state
+  showEmpty();
 </script>
 </body>
 </html>
