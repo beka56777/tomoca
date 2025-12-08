@@ -6,64 +6,347 @@
 <title>Admin Dashboard — Tomoca</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#4e2b18,#d4a373);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
-  .card{background:#fff;padding:20px;border-radius:12px;max-width:1000px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,0.18)}
-  .stats{display:flex;gap:12px;flex-wrap:wrap}
-  .stat{flex:1;min-width:150px;padding:14px;border-radius:8px;background:#faf7f4}
-  #recentList{margin-top:12px;border-radius:8px;overflow:hidden}
+  :root{
+    --bg1:#4e2b18; --bg2:#d4a373; --card:#fff; --muted:#666;
+    --accent:#8B4513; --glass:rgba(255,255,255,0.04);
+    --success:#2ea44f; --orange:#d97706; --danger:#d04545;
+    --radius:12px;
+  }
+  html,body{height:100%;margin:0;font-family:'Poppins',sans-serif;color:#222}
+  body{background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+  .card{background:var(--card);padding:20px;border-radius:var(--radius);max-width:1100px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,0.18);overflow:hidden}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  header h3{margin:0;font-size:20px}
+  header p{margin:0;color:var(--muted);font-size:13px}
+
+  .top-controls{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .search{flex:1;display:flex;gap:8px;align-items:center}
+  .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #eee}
+  select, button{padding:9px 12px;border-radius:10px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:inherit}
+
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .stat{flex:1;min-width:150px;padding:14px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfbfb);display:flex;align-items:center;gap:12px;box-shadow:0 6px 14px rgba(0,0,0,0.04)}
+  .stat .icon{width:44px;height:44px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-weight:700}
+  .stat strong{font-size:20px;display:block}
+  .stat small{color:var(--muted)}
+
+  .content{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-top:16px}
+  .left{background:transparent}
+  .right{background:linear-gradient(180deg,#fff,#fff);padding:12px;border-radius:10px;min-height:160px}
+
+  /* recent list */
+  #recentList{margin-top:12px;border-radius:8px;overflow:hidden;background:#fff;border-radius:10px;padding:6px}
+  .ticket{display:flex;gap:12px;padding:12px;border-radius:8px;align-items:flex-start;border:1px solid #f3f3f3;margin-bottom:8px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+  .ticket:hover{transform:translateY(-4px);box-shadow:0 10px 20px rgba(0,0,0,0.06)}
+  .avatar{width:44px;height:44px;border-radius:999px;background:#eee;display:flex;align-items:center;justify-content:center;font-weight:700;color:#222}
+  .t-main{flex:1}
+  .t-title{font-weight:700}
+  .t-meta{color:var(--muted);margin-top:6px;font-size:13px}
+  .badge{display:inline-block;padding:6px 8px;border-radius:999px;font-weight:600;background:#f3f3f3;margin-left:8px}
+  .status-open{background:#fff4e6;color:var(--orange);}
+  .status-in_progress{background:#eef6ff;color:#1f6feb;}
+  .status-resolved{background:#e9fbe9;color:var(--success);}
+
+  .urgency-low{color:green;font-weight:700}
+  .urgency-medium{color:orange;font-weight:700}
+  .urgency-high{color:var(--danger);font-weight:800}
+
+  /* skeleton */
+  .skeleton{height:12px;background:linear-gradient(90deg,#eee,#f7f7f7,#eee);border-radius:6px;animation:shine 1.2s linear infinite}
+  @keyframes shine{to{transform:translateX(120%)}}
+
+  /* modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:60}
+  .modal{background:#fff;padding:18px;border-radius:12px;max-width:720px;width:100%;max-height:85vh;overflow:auto}
+  .modal h4{margin:0 0 8px 0}
+  .modal pre{white-space:pre-wrap;background:#fafafa;padding:12px;border-radius:8px}
+
+  /* responsive */
+  @media (max-width:980px){ .content{grid-template-columns:1fr} .right{order:2} }
+
+  .small{font-size:13px;color:var(--muted)}
+  a.manager{display:inline-block;text-decoration:none;background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px}
 </style>
 </head>
 <body>
-  <div class="card">
-    <h3>Admin Dashboard</h3>
-    <p>Quick overview — append <code>?admin=YOUR_SECRET</code> to the URL to enable admin actions.</p>
+  <div class="card" role="main">
+    <header>
+      <div>
+        <h3>Admin Dashboard</h3>
+        <p>Quick overview — append <code>?admin=YOUR_SECRET</code> to the URL to enable admin actions.</p>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button id="refreshBtn" title="Refresh">🔄 Refresh</button>
+        <a id="managerLink" class="manager" href="tickets.html?admin=">Open Ticket Manager</a>
+      </div>
+    </header>
 
-    <div class="stats" id="stats">
-      <div class="stat">Open: <strong id="stat-open">—</strong></div>
-      <div class="stat">In Progress: <strong id="stat-inprogress">—</strong></div>
-      <div class="stat">Resolved: <strong id="stat-resolved">—</strong></div>
-      <div class="stat">Total: <strong id="stat-total">—</strong></div>
+    <div class="top-controls">
+      <div class="search">
+        <input id="searchInput" placeholder="Search recent tickets (name, id, department)" aria-label="Search tickets">
+        <select id="limitSelect" title="Number of recent tickets">
+          <option value="5">Top 5</option>
+          <option value="10" selected>Top 10</option>
+          <option value="20">Top 20</option>
+        </select>
+        <select id="urgencyFilter" title="Filter by urgency">
+          <option value="all">All urgencies</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <select id="statusFilter" title="Filter by status">
+          <option value="all">All status</option>
+          <option value="open">Open</option>
+          <option value="in_progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+        </select>
+        <select id="departmentFilter" title="Filter by department">
+          <option value="all">All departments</option>
+        </select>
+      </div>
     </div>
 
-    <h4 style="margin-top:14px">Latest Tickets</h4>
-    <div id="recentList"></div>
-    <div style="margin-top:14px"><a href="tickets.html?admin=" style="text-decoration:none;background:#8B4513;color:#fff;padding:8px 12px;border-radius:8px">Open Ticket Manager</a></div>
+    <div class="stats" id="stats">
+      <div class="stat"><div class="icon">O</div><div><small>Open</small><strong id="stat-open">—</strong></div></div>
+      <div class="stat"><div class="icon">P</div><div><small>In Progress</small><strong id="stat-inprogress">—</strong></div></div>
+      <div class="stat"><div class="icon">R</div><div><small>Resolved</small><strong id="stat-resolved">—</strong></div></div>
+      <div class="stat"><div class="icon">T</div><div><small>Total</small><strong id="stat-total">—</strong></div></div>
+    </div>
+
+    <div class="content">
+      <div class="left">
+        <h4 style="margin:12px 0 6px 0">Latest Tickets</h4>
+        <div id="recentList" aria-live="polite">
+          <!-- list & skeletons -->
+        </div>
+      </div>
+
+      <aside class="right">
+        <h4 style="margin:0 0 10px 0">Quick Insights</h4>
+        <div class="small" id="statusMessage">Loaded: —</div>
+        <div style="margin-top:12px">
+          <strong>Legend</strong>
+          <div class="small" style="margin-top:8px">
+            <div><span class="badge status-open">Open</span> &nbsp; <span class="badge status-in_progress">In Progress</span> &nbsp; <span class="badge status-resolved">Resolved</span></div>
+            <div style="margin-top:8px">Urgency: <span class="urgency-high">High</span> • <span class="urgency-medium">Medium</span> • <span class="urgency-low">Low</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
   </div>
 
 <script src="js/utils.js"></script>
 <script src="js/admin.js"></script>
 <script>
-  (async function(){
+  // Keep functions exactly the same as original: we call window._admin.fetchRecentTickets(n)
+  (function(){
     const recentList = document.getElementById('recentList');
     const so = document.getElementById('stat-open');
     const si = document.getElementById('stat-inprogress');
     const sr = document.getElementById('stat-resolved');
     const st = document.getElementById('stat-total');
+    const statusMessage = document.getElementById('statusMessage');
+    const searchInput = document.getElementById('searchInput');
+    const limitSelect = document.getElementById('limitSelect');
+    const urgencyFilter = document.getElementById('urgencyFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const departmentFilter = document.getElementById('departmentFilter');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const managerLink = document.getElementById('managerLink');
 
-    try {
-      const r = await window._admin.fetchRecentTickets(10);
-      if (r && r.success && Array.isArray(r.tickets)) {
-        recentList.innerHTML = r.tickets.map(t => `<div style="padding:10px;border-bottom:1px solid #f3f3f3">
-          <div style="font-weight:700">${t.name} <small style="color:#666">(${t.department})</small></div>
-          <div style="color:#666;margin-top:6px">${t.id} • ${window._utils.formatDate(t.createdAt||t.timestamp)} • ${t.urgency}</div>
-        </div>`).join('');
-        // quick stats
-        const counts = { open:0, in_progress:0, resolved:0 };
-        r.tickets.forEach(t => {
-          const s = (t.status || 'open').toLowerCase().replace(' ', '_');
-          if (counts[s] !== undefined) counts[s] += 1;
-        });
-        so.textContent = counts.open;
-        si.textContent = counts.in_progress;
-        sr.textContent = counts.resolved;
-        st.textContent = r.total || r.tickets.length;
-      } else {
-        recentList.innerHTML = '<div style="padding:12px">Unable to load tickets.</div>';
-      }
-    } catch (err) {
-      console.error(err);
-      recentList.innerHTML = '<div style="padding:12px">Error loading tickets.</div>';
+    // preserve admin param behavior
+    const ADMIN_SECRET = new URLSearchParams(location.search).get('admin') || '';
+    managerLink.href = `tickets.html?admin=${ADMIN_SECRET}`;
+
+    let rawTickets = []; // tickets returned by fetchRecentTickets
+    let displayed = [];  // filtered tickets shown
+
+    // skeleton loader
+    function showSkeleton(n){
+      recentList.innerHTML = Array.from({length:n}).map(()=>`
+        <div class="ticket">
+          <div class="avatar skeleton" style="width:44px;height:44px;border-radius:999px"></div>
+          <div class="t-main" style="flex:1">
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="width:50%;"><div class="skeleton" style="height:14px;width:80%"></div></div>
+              <div style="margin-left:auto;width:100px"><div class="skeleton" style="height:12px;width:100%"></div></div>
+            </div>
+            <div style="margin-top:8px"><div class="skeleton" style="height:12px;width:60%"></div></div>
+          </div>
+        </div>
+      `).join('');
     }
+
+    // create department options from rawTickets
+    function populateDepartments(){
+      const deps = Array.from(new Set(rawTickets.map(t => (t.department||'').trim()).filter(Boolean))).sort();
+      departmentFilter.innerHTML = '<option value="all">All departments</option>' + deps.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+    }
+
+    // render ticket item (kept fields same as original)
+    function renderTicketItem(t){
+      const statusKey = (t.status || 'open').toLowerCase().replace(' ', '_');
+      const urgencyKey = (t.urgency || 'medium').toLowerCase();
+      const initials = (t.name||'U').split(' ').map(s=>s[0]||'').slice(0,2).join('').toUpperCase() || 'U';
+      const created = window._utils && typeof window._utils.formatDate === 'function'
+        ? window._utils.formatDate(t.createdAt||t.timestamp)
+        : (new Date(t.createdAt||t.timestamp||Date.now())).toLocaleString();
+
+      return `
+        <div class="ticket" data-id="${escapeHtml(t.id||'')}" role="button" tabindex="0">
+          <div class="avatar">${escapeHtml(initials)}</div>
+          <div class="t-main">
+            <div class="t-title">${escapeHtml(t.name||'No title')} <small style="color:var(--muted)">(${escapeHtml(t.department||'General')})</small></div>
+            <div class="t-meta">${escapeHtml(t.id||'')} • ${escapeHtml(created)} • <span class="badge ${'status-'+statusKey}">${escapeHtml((t.status||'open'))}</span> <span class="badge" style="margin-left:8px">${escapeHtml(t.urgency||'medium')}</span></div>
+            <div style="margin-top:8px;color:var(--muted);font-size:13px">${escapeHtml((t.summary||t.message||'No description').slice(0,180))}${(t.summary||t.message||'').length>180?'…':''}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // safe escape
+    function escapeHtml(str){
+      return String(str||'').replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":\"&#39;\"})[s]);
+    }
+
+    // compute counts exactly like original
+    function computeCounts(list){
+      const counts = { open:0, in_progress:0, resolved:0 };
+      list.forEach(t => {
+        const s = (t.status || 'open').toLowerCase().replace(' ', '_');
+        if (counts[s] !== undefined) counts[s] += 1;
+      });
+      so.textContent = counts.open;
+      si.textContent = counts.in_progress;
+      sr.textContent = counts.resolved;
+      st.textContent = (list && list.length) || 0;
+    }
+
+    // apply client-side filters/search to the rawTickets (works on the recent set returned)
+    function applyFilters(){
+      const q = (searchInput.value||'').trim().toLowerCase();
+      const urg = urgencyFilter.value;
+      const stat = statusFilter.value;
+      const dept = departmentFilter.value;
+
+      displayed = rawTickets.filter(t => {
+        if(urg !== 'all' && t.urgency && t.urgency.toLowerCase() !== urg) return false;
+        if(stat !== 'all' && ((t.status||'open') !== stat)) return false;
+        if(dept !== 'all' && dept !== '' && (t.department||'').toLowerCase() !== dept.toLowerCase()) return false;
+        if(q){
+          const hay = `${t.name||''} ${t.id||''} ${t.department||''} ${t.message||t.summary||''}`.toLowerCase();
+          if(!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      // render
+      if(displayed.length === 0){
+        recentList.innerHTML = '<div style="padding:12px;color:var(--muted)">No tickets match filters.</div>';
+      } else {
+        recentList.innerHTML = displayed.map(renderTicketItem).join('');
+      }
+      computeCounts(displayed);
+      statusMessage.textContent = `Loaded: ${displayed.length} ticket(s)`;
+      attachRowHandlers(); // rebind clicks
+    }
+
+    // attach click handlers to ticket rows for modal
+    function attachRowHandlers(){
+      const items = recentList.querySelectorAll('.ticket');
+      items.forEach(el => {
+        el.onclick = () => showDetailsModal(el.dataset.id);
+        el.onkeypress = (e) => { if(e.key === 'Enter') showDetailsModal(el.dataset.id); };
+      });
+    }
+
+    // modal
+    function showDetailsModal(id){
+      const t = rawTickets.find(x => (x.id||'') === id);
+      if(!t){ alert('Ticket not found'); return; }
+      // build simple modal (native alert to keep it light)
+      const created = window._utils && typeof window._utils.formatDate === 'function'
+        ? window._utils.formatDate(t.createdAt||t.timestamp)
+        : (new Date(t.createdAt||t.timestamp||Date.now())).toLocaleString();
+
+      const details = [
+        `ID: ${t.id||''}`,
+        `Name: ${t.name||''}`,
+        `Department: ${t.department||''}`,
+        `Urgency: ${t.urgency||''}`,
+        `Status: ${t.status||'open'}`,
+        `Created: ${created}`,
+        '',
+        `Issue:\n${t.message||t.summary||'No description'}`
+      ].join('\n');
+
+      // preserve non-intrusive behaviour — use prompt-style to allow copying
+      // simple modal replacement:
+      const w = window.open('', '_blank', 'width=600,height=480');
+      if(w){
+        w.document.title = `Ticket ${escapeHtml(t.id||'')}`;
+        w.document.body.style.fontFamily = 'Poppins, Arial, sans-serif';
+        w.document.body.innerHTML = `<pre style="white-space:pre-wrap;font-size:14px">${escapeHtml(details)}</pre>`;
+      } else {
+        alert(details);
+      }
+    }
+
+    // main load function — keeps original call to fetchRecentTickets
+    async function load(limit = 10){
+      // show skeleton quickly
+      showSkeleton( (limit && Number(limit)) || 6 );
+      statusMessage.textContent = 'Loading…';
+      try {
+        if(!window._admin || typeof window._admin.fetchRecentTickets !== 'function'){
+          recentList.innerHTML = '<div style="padding:12px;color:var(--muted)">Admin helper not available (window._admin.fetchRecentTickets missing).</div>';
+          statusMessage.textContent = 'No admin helper';
+          return;
+        }
+
+        const r = await window._admin.fetchRecentTickets(Number(limit));
+        if (r && r.success && Array.isArray(r.tickets)) {
+          rawTickets = r.tickets;
+          // populate department dropdown
+          populateDepartments();
+
+          // by default display raw list
+          displayed = rawTickets.slice();
+          // render
+          recentList.innerHTML = displayed.map(renderTicketItem).join('');
+          // quick stats using same algorithm
+          computeCounts(rawTickets);
+          st.textContent = r.total || r.tickets.length;
+          statusMessage.textContent = `Loaded ${displayed.length} ticket(s)`;
+          attachRowHandlers();
+        } else {
+          recentList.innerHTML = '<div style="padding:12px">Unable to load tickets.</div>';
+          statusMessage.textContent = 'Unable to load tickets';
+          rawTickets = []; displayed = [];
+          computeCounts([]);
+        }
+      } catch (err) {
+        console.error(err);
+        recentList.innerHTML = '<div style="padding:12px">Error loading tickets.</div>';
+        statusMessage.textContent = 'Error loading tickets';
+        rawTickets = []; displayed = [];
+        computeCounts([]);
+      }
+    }
+
+    // wire UI
+    limitSelect.onchange = () => load(limitSelect.value);
+    refreshBtn.onclick = () => load(limitSelect.value);
+    [searchInput, urgencyFilter, statusFilter, departmentFilter].forEach(el => {
+      el.addEventListener('input', () => { setTimeout(applyFilters, 150); });
+      el.addEventListener('change', applyFilters);
+    });
+
+    // initial
+    window.addEventListener('load', () => load(limitSelect.value));
+
   })();
 </script>
 </body>
