@@ -3,129 +3,314 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Admin — Tickets</title>
+<title>Admin — Tickets (Enhanced)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  body{font-family:Arial,Helvetica,sans-serif;background:#f6f4f2;padding:22px}
-  .card{max-width:1100px;margin:0 auto;background:#fff;padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
-  h1{margin:0 0 10px;font-size:20px}
-  .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-  input, select{padding:8px;border-radius:6px;border:1px solid #ddd}
-  button{padding:8px 10px;border-radius:6px;border:0;background:#8b4513;color:#fff;cursor:pointer}
-  table{width:100%;border-collapse:collapse;margin-top:12px}
-  th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
-  .small{font-size:0.9rem;color:#666}
+  :root{--bg:#f6f4f2;--card:#fff;--accent:#8B4513;--muted:#6b6b6b;--success:#2d9a4a;--danger:#d04545;--radius:10px}
+  *{box-sizing:border-box}
+  body{font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);margin:0;padding:24px;color:#222}
+  .container{max-width:1200px;margin:0 auto}
+  .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 10px 30px rgba(0,0,0,0.06)}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  h1{margin:0;font-size:20px}
+  .controls{display:flex;gap:8px;align-items:center;margin-top:12px}
+  .controls input[type=search], .controls input[type=text], .controls select{padding:10px;border-radius:8px;border:1px solid #e9e9e9}
+  .btn{background:var(--accent);color:#fff;padding:9px 12px;border-radius:8px;border:0;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid #eee;color:#222}
+  .toolbar{display:flex;gap:8px;align-items:center;margin-left:auto}
+
+  /* table */
+  .table-wrap{margin-top:18px;overflow:auto;border-radius:8px;border:1px solid #f0f0f0}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:12px;border-bottom:1px solid #f6f6f6;text-align:left}
+  thead th{background:#fafafa;position:sticky;top:0}
+  tr.selected{background:linear-gradient(90deg,rgba(139,69,19,0.06),transparent)}
+  .badge{display:inline-block;padding:6px 8px;border-radius:999px;font-weight:600;background:#f5f5f5}
+  .badge.open{background:#fff4e6;color:#d77a2a}
+  .badge.in_progress{background:#eef6ff;color:#1f6feb}
+  .badge.resolved{background:#e9fbe9;color:var(--success)}
+
+  /* actions */
+  .action-btn{padding:6px 8px;border-radius:8px;border:0;cursor:pointer}
+  .action-btn.small{padding:6px 8px;font-size:13px}
+
+  /* pagination */
+  .pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:12px}
+
+  /* modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center}
+  .modal{background:#fff;padding:16px;border-radius:12px;max-width:800px;width:95%;max-height:80vh;overflow:auto}
+
+  /* toast */
+  .toast{position:fixed;right:18px;bottom:18px;background:#222;color:#fff;padding:10px 14px;border-radius:8px;display:none}
+
+  @media (max-width:900px){
+    .controls{flex-direction:column;align-items:stretch}
+    .toolbar{margin-left:0}
+  }
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>Admin — Tickets</h1>
+  <div class="container">
+    <div class="card" role="main">
+      <header>
+        <div>
+          <h1>Admin — Tickets</h1>
+          <div style="color:var(--muted);font-size:13px">Manage tickets, assign, resolve and export data</div>
+        </div>
+        <div class="toolbar">
+          <button class="btn ghost" id="exportCsv">Export CSV</button>
+          <button class="btn" id="bulkResolve">Resolve Selected</button>
+        </div>
+      </header>
 
-  <div class="controls">
-    <input id="q" placeholder="search (id/name/issue)" style="flex:1" />
-    <select id="status">
-      <option value="">Any status</option>
-      <option value="open">Open</option>
-      <option value="in_progress">In Progress</option>
-      <option value="resolved">Resolved</option>
-    </select>
-    <input id="department" placeholder="Department" />
-    <button id="btnSearch">Search</button>
+      <div class="controls" style="margin-top:14px">
+        <input id="search" type="search" placeholder="Search by id, name, issue" style="flex:1" aria-label="Search tickets">
+        <select id="statusFilter">
+          <option value="all">Any status</option>
+          <option value="open">Open</option>
+          <option value="in_progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+        </select>
+        <select id="urgencyFilter">
+          <option value="all">All urgencies</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <input id="department" type="text" placeholder="Department" />
+        <button class="btn" id="btnSearch">Search</button>
+      </div>
+
+      <div id="meta" style="margin-top:10px;color:var(--muted);font-size:13px">Total tickets: —</div>
+
+      <div class="table-wrap" aria-live="polite">
+        <table id="tbl" role="table">
+          <thead>
+            <tr>
+              <th style="width:34px"><input id="selectAll" type="checkbox" aria-label="Select all"/></th>
+              <th>ID</th><th>Name</th><th>Dept</th><th>Urgency</th><th>Status</th><th>Created</th><th style="width:180px">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <div style="color:var(--muted)" id="showing">—</div>
+        <button class="btn ghost" id="prev">Prev</button>
+        <button class="btn" id="next">Next</button>
+      </div>
+
+    </div>
   </div>
 
-  <div id="meta" class="small"></div>
+  <!-- modal -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" id="modal">
+      <h3 id="modalTitle">Ticket</h3>
+      <div id="modalBody" style="color:var(--muted);margin-top:8px"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn ghost" id="closeModal">Close</button>
+        <button class="btn" id="modalResolve">Resolve</button>
+      </div>
+    </div>
+  </div>
 
-  <table id="tbl">
-    <thead>
-      <tr>
-        <th>ID</th><th>Name</th><th>Dept</th><th>Urgency</th><th>Status</th><th>Created</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+  <div class="toast" id="toast"></div>
 
 <script>
-const BACKEND_BASE = 'https://tomoca.onrender.com';
-let allTickets = [];
+  // Configuration
+  const BACKEND_BASE = (window.BACKEND_BASE || '') || 'https://tomoca.onrender.com';
+  const ADMIN_SECRET = new URLSearchParams(location.search).get('admin') || null;
 
-document.getElementById('btnSearch').addEventListener('click', filterTickets);
-document.getElementById('q').addEventListener('keypress',(e)=>{ if(e.key==='Enter') filterTickets(); });
+  // State
+  let allTickets = [];
+  let page = 1, perPage = 12;
+  let filtered = [];
+  let selectedSet = new Set();
 
-async function loadTickets(){
-  try {
-    const res = await fetch(`${BACKEND_BASE}/tickets`);
-    const data = await res.json();
-    if(!data.success){ alert("Error: " + (data.message||'')); return; }
-    allTickets = data.tickets || [];
-    document.getElementById('meta').textContent = `Total tickets: ${allTickets.length}`;
-    renderTable(allTickets);
-  } catch(err){ console.error(err); alert("Network error"); }
-}
-
-function filterTickets(){
-  const q = document.getElementById('q').value.toLowerCase();
-  const status = document.getElementById('status').value;
-  const department = document.getElementById('department').value.toLowerCase();
-
-  const filtered = allTickets.filter(t=>{
-    const matchQ = t.ticketId.toLowerCase().includes(q) || t.name.toLowerCase().includes(q) || (t.issue||'').toLowerCase().includes(q);
-    const matchStatus = status ? t.status === status : true;
-    const matchDept = department ? t.department.toLowerCase().includes(department) : true;
-    return matchQ && matchStatus && matchDept;
-  });
-
-  document.getElementById('meta').textContent = `Showing: ${filtered.length} of ${allTickets.length}`;
-  renderTable(filtered);
-}
-
-function renderTable(items){
+  // Elements
   const tbody = document.querySelector('#tbl tbody');
-  tbody.innerHTML = '';
-  items.forEach(t=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${t.ticketId}</td>
-      <td>${t.name}</td>
-      <td>${t.department}</td>
-      <td>${t.urgency}</td>
-      <td>${t.status || 'open'}</td>
-      <td>${new Date(t.created_at).toLocaleString()}</td>
-      <td>
-        <button onclick="viewTicket('${t.ticketId}')">View</button>
-        <button onclick="markResolved('${t.ticketId}')">Resolve</button>
-      </td>
+  const meta = document.getElementById('meta');
+  const showing = document.getElementById('showing');
+  const selectAll = document.getElementById('selectAll');
+
+  // helpers
+  const toast = (msg, time=2500)=>{
+    const t = document.getElementById('toast'); t.textContent = msg; t.style.display='block'; setTimeout(()=>t.style.display='none',time);
+  }
+
+  const fetchJson = async (path, opts)=>{
+    const url = path.startsWith('http') ? path : (BACKEND_BASE + path);
+    const res = await fetch(url, opts); return await res.json();
+  }
+
+  function statusBadge(s){ const key=(s||'open').toLowerCase().replace(' ','_'); return `<span class="badge ${key}">${s||'open'}</span>` }
+
+  function renderRow(t){
+    const checked = selectedSet.has(t.ticketId) ? 'checked' : '';
+    return `
+      <tr data-id="${t.ticketId}" class="${checked? 'selected':''}">
+        <td><input type="checkbox" class="rowSelect" data-id="${t.ticketId}" ${checked}></td>
+        <td><strong>${escapeHtml(t.ticketId)}</strong></td>
+        <td>${escapeHtml(t.name)}</td>
+        <td>${escapeHtml(t.department||'—')}</td>
+        <td>${escapeHtml(t.urgency||'medium')}</td>
+        <td>${statusBadge(t.status)}</td>
+        <td>${new Date(t.created_at||t.createdAt||t.timestamp||Date.now()).toLocaleString()}</td>
+        <td>
+          <button class="action-btn small" data-action="view" data-id="${t.ticketId}">View</button>
+          <button class="action-btn small" data-action="assign" data-id="${t.ticketId}">Assign</button>
+          <button class="action-btn small" data-action="resolve" data-id="${t.ticketId}">Resolve</button>
+        </td>
+      </tr>
     `;
-    tbody.appendChild(tr);
-  });
-}
+  }
 
-window.viewTicket = async function(id){
-  try{
-    const res = await fetch(`${BACKEND_BASE}/ticket?id=${encodeURIComponent(id)}`);
-    const data = await res.json();
-    if(!data.success){ alert(data.message || 'Not found'); return; }
-    const t = data.ticket;
-    alert(`Ticket ${t.ticketId}\n\nName: ${t.name}\nDept: ${t.department}\nUrgency: ${t.urgency}\nStatus: ${t.status}\n\nIssue:\n${t.issue}`);
-  }catch(e){ console.error(e); alert('Network error'); }
-};
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]) }
 
-window.markResolved = async function(id){
-  if(!confirm("Mark ticket as resolved?")) return;
-  try{
-    const res = await fetch(`${BACKEND_BASE}/update-ticket`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ id, updates:{ status:'resolved' } })
+  function applyFilters(){
+    const q = document.getElementById('search').value.trim().toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    const urgency = document.getElementById('urgencyFilter').value;
+    const dept = document.getElementById('department').value.trim().toLowerCase();
+
+    filtered = allTickets.filter(t=>{
+      if(status !== 'all' && status !== (t.status||'open')) return false;
+      if(urgency !== 'all' && urgency !== (t.urgency||'medium')) return false;
+      if(dept && !(t.department||'').toLowerCase().includes(dept)) return false;
+      if(q){ const hay = `${t.ticketId} ${t.name} ${t.issue || ''} ${t.department || ''}`.toLowerCase(); if(!hay.includes(q)) return false; }
+      return true;
     });
-    const data = await res.json();
-    if(!data.success){ alert('Failed: ' + (data.message||'')); return; }
-    alert("Ticket resolved");
-    loadTickets();
-  }catch(e){ console.error(e); alert("Network error"); }
-};
+    page = 1;
+    renderTable();
+  }
 
-// initial load
-loadTickets();
+  function renderTable(){
+    const start = (page-1)*perPage; const end = start + perPage;
+    const pageItems = filtered.slice(start,end);
+    tbody.innerHTML = pageItems.map(renderRow).join('') || `<tr><td colspan="8" style="padding:18px;color:var(--muted)">No tickets found.</td></tr>`;
+    meta.textContent = `Showing ${Math.min(filtered.length, end)} of ${filtered.length} (Total ${allTickets.length})`;
+    showing.textContent = `Page ${page}`;
+    attachRowHandlers();
+  }
+
+  function attachRowHandlers(){
+    document.querySelectorAll('.rowSelect').forEach(cb=> cb.onchange = (e)=>{
+      const id = cb.dataset.id; if(cb.checked) selectedSet.add(id); else selectedSet.delete(id);
+      cb.closest('tr').classList.toggle('selected', cb.checked);
+    });
+
+    document.querySelectorAll('[data-action]').forEach(btn=>btn.onclick = async ()=>{
+      const action = btn.dataset.action; const id = btn.dataset.id;
+      if(action==='view') return showModal(await fetchTicket(id));
+      if(action==='assign'){
+        const who = prompt('Assign to (username or email)'); if(!who) return; await assignTicket(id, who); }
+      if(action==='resolve'){
+        if(!confirm('Mark ticket resolved?')) return; await resolveTicket(id); }
+    });
+  }
+
+  // API interactions - prefer window._admin for host-provided helpers
+  async function fetchTicket(id){
+    if(window._admin && window._admin.getTicket) return await window._admin.getTicket(id, ADMIN_SECRET);
+    const res = await fetchJson(`/ticket?id=${encodeURIComponent(id)}`); return res.ticket || res;
+  }
+
+  async function resolveTicket(id){
+    try{
+      if(window._admin && window._admin.resolveTicket) { await window._admin.resolveTicket(id, ADMIN_SECRET); }
+      else {
+        await fetchJson('/update-ticket', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, updates:{ status:'resolved' }}) });
+      }
+      // optimistic local update
+      allTickets = allTickets.map(t=> t.ticketId===id? {...t, status:'resolved'}:t);
+      applyFilters(); toast('Ticket resolved');
+    }catch(e){ console.error(e); toast('Failed to resolve') }
+  }
+
+  async function assignTicket(id, who){
+    try{
+      if(window._admin && window._admin.assignTicket) { await window._admin.assignTicket(id, who, ADMIN_SECRET); }
+      else { await fetchJson('/update-ticket', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id, updates:{ assignedTo:who }}) }); }
+      toast('Assigned');
+    }catch(e){console.error(e); toast('Assign failed')}
+  }
+
+  async function bulkResolve(){
+    if(selectedSet.size===0){ toast('No tickets selected'); return; }
+    if(!confirm(`Resolve ${selectedSet.size} tickets?`)) return;
+    const ids = Array.from(selectedSet);
+    for(const id of ids) await resolveTicket(id);
+    selectedSet.clear(); selectAll.checked = false; applyFilters();
+  }
+
+  // modal
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalBody = document.getElementById('modalBody');
+  const modalTitle = document.getElementById('modalTitle');
+  document.getElementById('closeModal').onclick = ()=> hideModal();
+  document.getElementById('modalResolve').onclick = async ()=>{
+    const id = modalBackdrop.dataset.id; await resolveTicket(id); hideModal(); };
+
+  function showModal(ticket){
+    if(!ticket){ toast('Ticket not found'); return; }
+    modalTitle.textContent = `${ticket.ticketId} — ${ticket.name}`;
+    modalBody.innerHTML = `
+      <div style="margin-bottom:8px;color:var(--muted)">Department: ${escapeHtml(ticket.department||'—')} • Urgency: ${escapeHtml(ticket.urgency||'medium')} • Status: ${escapeHtml(ticket.status||'open')}</div>
+      <pre style="white-space:pre-wrap;background:#fafafa;padding:10px;border-radius:8px">${escapeHtml(ticket.issue||ticket.message||'No description')}</pre>
+    `;
+    modalBackdrop.style.display = 'flex'; modalBackdrop.dataset.id = ticket.ticketId; modalBackdrop.setAttribute('aria-hidden','false');
+  }
+  function hideModal(){ modalBackdrop.style.display='none'; modalBackdrop.setAttribute('aria-hidden','true'); }
+
+  // export CSV
+  function exportCsv(){
+    const keys = ['ticketId','name','department','urgency','status','created_at','issue'];
+    const rows = filtered.map(r=> keys.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`).join(','));
+    const csv = [keys.join(',')].concat(rows).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='tickets.csv'; a.click(); URL.revokeObjectURL(url);
+  }
+
+  // Select all
+  selectAll.onchange = ()=>{
+    const check = selectAll.checked; document.querySelectorAll('.rowSelect').forEach(cb=>{ cb.checked = check; const id = cb.dataset.id; if(check) selectedSet.add(id); else selectedSet.delete(id); cb.closest('tr').classList.toggle('selected', check); });
+  }
+
+  // Pagination
+  document.getElementById('prev').onclick = ()=>{ if(page>1){ page--; renderTable(); }};
+  document.getElementById('next').onclick = ()=>{ if(page*perPage < filtered.length){ page++; renderTable(); }};
+
+  // UI wiring
+  document.getElementById('btnSearch').onclick = applyFilters;
+  document.getElementById('search').addEventListener('input', ()=>{ setTimeout(applyFilters, 250); });
+  document.getElementById('statusFilter').onchange = applyFilters;
+  document.getElementById('urgencyFilter').onchange = applyFilters;
+  document.getElementById('department').addEventListener('input', ()=> setTimeout(applyFilters, 250));
+  document.getElementById('exportCsv').onclick = exportCsv;
+  document.getElementById('bulkResolve').onclick = bulkResolve;
+
+  // initial load
+  async function loadTickets(){
+    try{
+      let resp = null;
+      if(window._admin && window._admin.fetchAllTickets) resp = await window._admin.fetchAllTickets(ADMIN_SECRET);
+      else resp = await fetchJson('/tickets');
+      const list = resp.tickets || resp || [];
+      allTickets = Array.isArray(list) ? list : [];
+      filtered = allTickets.slice();
+      renderTable();
+      document.getElementById('meta').textContent = `Total tickets: ${allTickets.length}`;
+    }catch(e){ console.error(e); document.getElementById('meta').textContent = 'Failed to load tickets'; }
+  }
+
+  // boot
+  loadTickets();
+
+  // keyboard: f focuses search
+  window.addEventListener('keydown', e=>{ if(e.key==='f' && document.activeElement.id !== 'search'){ e.preventDefault(); document.getElementById('search').focus(); } });
+
 </script>
 </body>
 </html>
