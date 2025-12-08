@@ -1,70 +1,341 @@
-<!-- frontend/dashboard.html -->
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Admin Dashboard — Tomoca</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-  body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#4e2b18,#d4a373);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
-  .card{background:#fff;padding:20px;border-radius:12px;max-width:1000px;width:100%;box-shadow:0 12px 30px rgba(0,0,0,0.18)}
-  .stats{display:flex;gap:12px;flex-wrap:wrap}
-  .stat{flex:1;min-width:150px;padding:14px;border-radius:8px;background:#faf7f4}
-  #recentList{margin-top:12px;border-radius:8px;overflow:hidden}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard — Tomoca</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1: #4e2b18;
+      --bg-2: #d4a373;
+      --accent: #8B4513;
+      --card:#fff;
+      --muted:#666;
+      --glass: rgba(255,255,255,0.06);
+      --radius:12px;
+      --max-width:1100px;
+    }
+    /* layout */
+    html,body{height:100%;margin:0;font-family:'Poppins',system-ui,Segoe UI,Roboto, "Helvetica Neue",Arial;font-size:15px;color:#222}
+    body{background:linear-gradient(135deg,var(--bg-1),var(--bg-2));min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+    .wrap{max-width:var(--max-width);width:100%}
+
+    /* card */
+    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 12px 30px rgba(0,0,0,0.18);overflow:hidden}
+    header{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    header h1{font-size:20px;margin:0}
+    header p{margin:0;color:var(--muted)}
+
+    /* controls */
+    .controls{display:flex;gap:8px;align-items:center;margin-top:10px}
+    .controls .left{display:flex;gap:8px;align-items:center}
+    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:10px;text-decoration:none;border:0;cursor:pointer}
+    .btn.ghost{background:transparent;color:#222;border:1px solid rgba(0,0,0,0.06)}
+    input[type=search], select{padding:8px 10px;border-radius:8px;border:1px solid #eee;min-width:160px}
+
+    /* stats */
+    .overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:14px}
+    .stat{background:#faf7f4;padding:14px;border-radius:10px;min-height:70px;display:flex;flex-direction:column;justify-content:center}
+    .stat strong{font-size:20px}
+    .stat small{color:var(--muted)}
+
+    /* main area */
+    .main{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-top:16px}
+
+    /* tickets column */
+    .tickets{background:linear-gradient(180deg,#fff,#fff);padding:12px;border-radius:10px;min-height:260px}
+    .tickets .list{max-height:520px;overflow:auto}
+    .ticket{padding:12px;border-radius:8px;border:1px solid #f3f3f3;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+    .ticket .meta{flex:1}
+    .ticket h4{margin:0 0 6px 0}
+    .ticket p{margin:0;color:var(--muted)}
+    .ticket .badge{display:inline-block;padding:6px 8px;border-radius:999px;background:#f3f3f3;font-weight:600}
+    .ticket .actions{display:flex;gap:6px}
+
+    /* right column */
+    .sidebar{background:#fff;padding:12px;border-radius:10px}
+    .chart{height:160px;display:flex;align-items:center;justify-content:center}
+
+    /* skeleton */
+    .skeleton{background:linear-gradient(90deg,#eee,#f7f7f7,#eee);height:12px;border-radius:6px;animation:shine 1.2s linear infinite}
+    @keyframes shine{to{transform:translateX(120%)}}
+
+    /* footer */
+    footer{margin-top:12px;color:var(--muted);font-size:13px}
+
+    /* responsive */
+    @media (max-width:880px){
+      .main{grid-template-columns:1fr}
+      .sidebar{order:2}
+    }
+  </style>
 </head>
 <body>
-  <div class="card">
-    <h3>Admin Dashboard</h3>
-    <p>Quick overview — append <code>?admin=YOUR_SECRET</code> to the URL to enable admin actions.</p>
+  <div class="wrap">
+    <div class="card" role="main">
+      <header>
+        <div>
+          <h1>Admin Dashboard</h1>
+          <p>Quick overview — append <code>?admin=YOUR_SECRET</code> to the URL to enable admin actions.</p>
+        </div>
+        <div style="margin-left:auto">
+          <button class="btn" id="refreshBtn" title="Refresh">Refresh</button>
+          <button class="btn ghost" id="toggleDark">Toggle Theme</button>
+        </div>
+      </header>
 
-    <div class="stats" id="stats">
-      <div class="stat">Open: <strong id="stat-open">—</strong></div>
-      <div class="stat">In Progress: <strong id="stat-inprogress">—</strong></div>
-      <div class="stat">Resolved: <strong id="stat-resolved">—</strong></div>
-      <div class="stat">Total: <strong id="stat-total">—</strong></div>
+      <div class="controls" aria-label="controls">
+        <div class="left">
+          <input id="search" type="search" placeholder="Search by name, id or department" aria-label="Search tickets">
+          <select id="statusFilter" aria-label="Filter by status">
+            <option value="all">All statuses</option>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+          </select>
+          <select id="urgencyFilter" aria-label="Filter by urgency">
+            <option value="all">All urgencies</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <select id="sortBy" aria-label="Sort by">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn ghost" id="exportCsv">Export CSV</button>
+          <a id="managerLink" class="btn" href="tickets.html">Open Ticket Manager</a>
+        </div>
+      </div>
+
+      <div class="overview" id="stats">
+        <div class="stat"><small>Open</small><strong id="stat-open">—</strong></div>
+        <div class="stat"><small>In Progress</small><strong id="stat-inprogress">—</strong></div>
+        <div class="stat"><small>Resolved</small><strong id="stat-resolved">—</strong></div>
+        <div class="stat"><small>Total</small><strong id="stat-total">—</strong></div>
+      </div>
+
+      <div class="main">
+        <section class="tickets" aria-labelledby="latestTickets">
+          <h3 id="latestTickets">Latest Tickets</h3>
+          <div class="list" id="recentList">
+            <!-- tickets will render here -->
+          </div>
+          <div style="display:flex;justify-content:center;margin-top:10px">
+            <button class="btn ghost" id="loadMore">Load more</button>
+          </div>
+        </section>
+
+        <aside class="sidebar" aria-labelledby="sidebarTitle">
+          <h4 id="sidebarTitle">Quick Insights</h4>
+          <div class="chart" id="chartArea">
+            <!-- simple bars/donut svg -->
+            <div id="miniChart" style="width:100%">
+              <svg viewBox="0 0 120 40" preserveAspectRatio="none" style="width:100%;height:40px">
+                <rect x="0" y="10" width="33%" height="12" rx="6" fill="#f3f3f3"></rect>
+                <rect x="33%" y="10" width="33%" height="12" rx="6" fill="#f7e3d0"></rect>
+                <rect x="66%" y="10" width="34%" height="12" rx="6" fill="#d9b38c"></rect>
+              </svg>
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <strong>Recent Activity</strong>
+            <ul id="activityLog" style="padding-left:16px;color:var(--muted)"></ul>
+          </div>
+        </aside>
+      </div>
+
+      <footer>
+        <small id="statusMessage">Loaded: —</small>
+      </footer>
     </div>
-
-    <h4 style="margin-top:14px">Latest Tickets</h4>
-    <div id="recentList"></div>
-    <div style="margin-top:14px"><a href="tickets.html?admin=" style="text-decoration:none;background:#8B4513;color:#fff;padding:8px 12px;border-radius:8px">Open Ticket Manager</a></div>
   </div>
 
-<script src="js/utils.js"></script>
-<script src="js/admin.js"></script>
-<script>
-  (async function(){
+  <script>
+    // graceful helpers if your external utils exist, otherwise provide fallbacks
+    const _utils = window._utils || {
+      formatDate: ts => {
+        try{ const d = new Date(ts); return d.toLocaleString(); }catch(e){return ts}
+      }
+    };
+
+    const ADMIN_SECRET = new URLSearchParams(location.search).get('admin') || null;
+    const isAdmin = !!ADMIN_SECRET;
+
+    // elements
     const recentList = document.getElementById('recentList');
     const so = document.getElementById('stat-open');
     const si = document.getElementById('stat-inprogress');
     const sr = document.getElementById('stat-resolved');
     const st = document.getElementById('stat-total');
+    const statusMsg = document.getElementById('statusMessage');
+    const searchEl = document.getElementById('search');
+    const statusFilter = document.getElementById('statusFilter');
+    const urgencyFilter = document.getElementById('urgencyFilter');
+    const sortBy = document.getElementById('sortBy');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const exportCsvBtn = document.getElementById('exportCsv');
+    const managerLink = document.getElementById('managerLink');
 
-    try {
-      const r = await window._admin.fetchRecentTickets(10);
-      if (r && r.success && Array.isArray(r.tickets)) {
-        recentList.innerHTML = r.tickets.map(t => `<div style="padding:10px;border-bottom:1px solid #f3f3f3">
-          <div style="font-weight:700">${t.name} <small style="color:#666">(${t.department})</small></div>
-          <div style="color:#666;margin-top:6px">${t.id} • ${window._utils.formatDate(t.createdAt||t.timestamp)} • ${t.urgency}</div>
-        </div>`).join('');
-        // quick stats
-        const counts = { open:0, in_progress:0, resolved:0 };
-        r.tickets.forEach(t => {
-          const s = (t.status || 'open').toLowerCase().replace(' ', '_');
-          if (counts[s] !== undefined) counts[s] += 1;
-        });
-        so.textContent = counts.open;
-        si.textContent = counts.in_progress;
-        sr.textContent = counts.resolved;
-        st.textContent = r.total || r.tickets.length;
-      } else {
-        recentList.innerHTML = '<div style="padding:12px">Unable to load tickets.</div>';
-      }
-    } catch (err) {
-      console.error(err);
-      recentList.innerHTML = '<div style="padding:12px">Error loading tickets.</div>';
+    managerLink.href = `tickets.html?admin=${ADMIN_SECRET||''}`;
+
+    let page = 1, perPage = 10, ticketsCache = [];
+
+    function renderTicket(t){
+      const status = (t.status||'open').toLowerCase().replace(' ','_');
+      const urgency = (t.urgency||'medium').toLowerCase();
+      const adminControls = isAdmin ? `
+        <div class="actions">
+          <button class="btn" data-action="assign" data-id="${t.id}">Assign</button>
+          <button class="btn ghost" data-action="resolve" data-id="${t.id}">Resolve</button>
+        </div>` : '';
+
+      return `
+        <article class="ticket" role="article" aria-labelledby="title-${t.id}">
+          <div class="meta">
+            <h4 id="title-${t.id}">${escapeHtml(t.name||'No title')} <small style="color:var(--muted)">(${escapeHtml(t.department||'General')})</small></h4>
+            <p>${escapeHtml(t.id)} • ${_utils.formatDate(t.createdAt||t.timestamp||'')} • <span class="badge">${escapeHtml(urgency)}</span> • <em style="color:var(--muted)">${escapeHtml(status)}</em></p>
+            <p style="margin-top:8px;color:var(--muted)">${escapeHtml((t.summary||t.message||'No description').slice(0,200))}${(t.summary||t.message||'').length>200?'…':''}</p>
+          </div>
+          ${adminControls}
+        </article>
+      `;
     }
-  })();
-</script>
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s]);
+    }
+
+    function applyFilters(list){
+      const q = searchEl.value.trim().toLowerCase();
+      const s = statusFilter.value;
+      const u = urgencyFilter.value;
+      let out = list.filter(t => {
+        if(s!=='all' && ((t.status||'open').toLowerCase().replace(' ','_') !== s)) return false;
+        if(u!=='all' && ((t.urgency||'medium').toLowerCase() !== u)) return false;
+        if(q){
+          const hay = `${t.name} ${t.id} ${t.department} ${t.message}`.toLowerCase();
+          if(!hay.includes(q)) return false;
+        }
+        return true;
+      });
+      if(sortBy.value === 'newest') out.sort((a,b)=> new Date(b.createdAt||b.timestamp) - new Date(a.createdAt||a.timestamp));
+      else out.sort((a,b)=> new Date(a.createdAt||a.timestamp) - new Date(b.createdAt||b.timestamp));
+      return out;
+    }
+
+    function updateStats(list){
+      const counts = { open:0, in_progress:0, resolved:0 };
+      list.forEach(t=>{ const s=(t.status||'open').toLowerCase().replace(' ','_'); if(counts[s]!==undefined) counts[s]++; });
+      so.textContent = counts.open; si.textContent = counts.in_progress; sr.textContent = counts.resolved; st.textContent = list.length;
+      // update mini chart colors by updating the SVG widths (simple)
+      statusMsg.textContent = `Loaded: ${new Date().toLocaleString()}`;
+    }
+
+    async function loadTickets({reset=false} = {}){
+      if(reset){ page=1; ticketsCache=[]; }
+      statusMsg.textContent = 'Loading…';
+      try{
+        // prefer host-provided admin fetch helper when available
+        let resp = null;
+        if(window._admin && typeof window._admin.fetchRecentTickets === 'function'){
+          resp = await window._admin.fetchRecentTickets(perPage, page, ADMIN_SECRET);
+        } else {
+          // fallback: attempt fetch from /api/tickets (adjust as needed)
+          const res = await fetch(`/api/tickets?limit=${perPage}&page=${page}`);
+          resp = await res.json();
+        }
+
+        const list = (resp && resp.tickets) ? resp.tickets : (Array.isArray(resp)?resp:[]);
+        ticketsCache = ticketsCache.concat(list);
+        const filtered = applyFilters(ticketsCache);
+        recentList.innerHTML = filtered.map(renderTicket).join('') || '<div style="padding:12px">No tickets found.</div>';
+        updateStats(ticketsCache);
+        attachActions();
+        page++;
+        statusMsg.textContent = `Loaded ${ticketsCache.length} tickets`;
+      }catch(err){
+        console.error(err);
+        recentList.innerHTML = '<div style="padding:12px">Error loading tickets.</div>';
+        statusMsg.textContent = 'Error loading tickets';
+      }
+    }
+
+    function attachActions(){
+      document.querySelectorAll('[data-action]').forEach(btn=>{
+        btn.onclick = async e=>{
+          const act = btn.dataset.action;
+          const id = btn.dataset.id;
+          if(act==='resolve'){
+            if(!confirm('Mark ticket as resolved?')) return;
+            try{
+              if(window._admin && window._admin.resolveTicket) {
+                await window._admin.resolveTicket(id, ADMIN_SECRET);
+                // update local cache
+                ticketsCache = ticketsCache.map(t=> t.id===id ? {...t, status:'resolved'}:t);
+                loadTickets({reset:true});
+              } else {
+                alert('No admin API available here');
+              }
+            }catch(e){console.error(e);alert('Failed to resolve ticket')}
+          }
+          if(act==='assign'){
+            const who = prompt('Assign to (username/email)');
+            if(!who) return;
+            try{
+              if(window._admin && window._admin.assignTicket) {
+                await window._admin.assignTicket(id, who, ADMIN_SECRET);
+                alert('Assigned');
+              } else alert('No admin API available here');
+            }catch(e){console.error(e);alert('Failed to assign')}
+          }
+        }
+      });
+    }
+
+    // export CSV
+    function toCsv(rows){
+      const keys=['id','name','department','status','urgency','createdAt','message'];
+      const header = keys.join(',');
+      const lines = rows.map(r=> keys.map(k=>`"${String(r[k]||'').replace(/"/g,'""')}"`).join(','));
+      return [header].concat(lines).join('\n');
+    }
+
+    exportCsvBtn.onclick = ()=>{
+      const csv = toCsv(ticketsCache);
+      const blob = new Blob([csv],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='tickets.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // small helpers
+    function debounce(fn, wait=250){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a),wait)} }
+
+    [searchEl, statusFilter, urgencyFilter, sortBy].forEach(el=> el.addEventListener('input', debounce(()=>{
+      const filtered = applyFilters(ticketsCache);
+      recentList.innerHTML = filtered.map(renderTicket).join('') || '<div style="padding:12px">No tickets match filters.</div>';
+      updateStats(filtered);
+      attachActions();
+    })));
+
+    loadMoreBtn.onclick = ()=> loadTickets();
+    refreshBtn.onclick = ()=> loadTickets({reset:true});
+
+    // initial load
+    (async()=>{ await loadTickets({reset:true}); })();
+
+    // keyboard accessibility: press "f" to focus search
+    window.addEventListener('keydown', e=>{ if(e.key==='f' && document.activeElement !== searchEl){ e.preventDefault(); searchEl.focus(); }});
+
+    // small UI toggle example
+    document.getElementById('toggleDark').onclick = ()=>{
+      document.body.style.filter = document.body.style.filter === 'invert(1)'? '': 'invert(1)';
+    }
+  </script>
 </body>
 </html>
