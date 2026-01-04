@@ -4,178 +4,1674 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Track Ticket — Tomoca IT (Enhanced)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root{--bg:#f3f2f1;--card:#fff;--accent:#8B4513;--muted:#6b6b6b;--success:#2ea44f;--danger:#d04545;--radius:12px}
-    *{box-sizing:border-box}
-    body{font-family:'Poppins',system-ui,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),#fff);margin:0;padding:28px;color:#222}
-    .wrap{max-width:820px;margin:0 auto}
-    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 10px 28px rgba(0,0,0,0.06)}
+    :root {
+      --bg: #f8f9fa;
+      --card: #ffffff;
+      --accent: #8B4513;
+      --accent-light: #a85e2e;
+      --muted: #6c757d;
+      --muted-light: #adb5bd;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --info: #17a2b8;
+      --radius: 16px;
+      --shadow: 0 8px 30px rgba(0,0,0,0.08);
+      --shadow-hover: 0 12px 40px rgba(0,0,0,0.12);
+      --transition: all 0.3s ease;
+      --primary: #4e2b18;
+      --secondary: #d4a373;
+      --light: #f8f5f2;
+      --dark: #2c1810;
+      --border: #e5e7eb;
+    }
+    
+    .dark-mode {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --accent: #d4a574;
+      --accent-light: #e6b894;
+      --muted: #a0a0a0;
+      --muted-light: #6d6d6d;
+      --success: #4caf50;
+      --warning: #ffb74d;
+      --danger: #f44336;
+      --info: #29b6f6;
+      --shadow: 0 8px 30px rgba(0,0,0,0.3);
+      --shadow-hover: 0 12px 40px rgba(0,0,0,0.4);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #f8f5f2 0%, #f0ebe6 100%);
+      min-height: 100vh;
+      color: #222;
+      transition: var(--transition);
+    }
 
-    h1{margin:0;font-size:20px}
-    .muted{color:var(--muted);font-size:13px}
-    label{display:block;margin-top:14px;font-weight:600}
+    .dark-mode body {
+      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+      color: #e0e0e0;
+    }
 
-    .controls{display:flex;gap:8px;align-items:center;margin-top:12px}
-    input[type=text]{flex:1;padding:12px;border-radius:10px;border:1px solid #eee;font-size:14px}
-    button{padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
-    button.ghost{background:transparent;color:var(--accent);border:1px solid #eee}
+    /* Header Styles */
+    .header {
+      background: var(--card);
+      padding: 16px 24px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-    .result{margin-top:16px;padding:14px;border-radius:10px;background:#fafafa;border:1px solid #f0f0f0;display:none}
-    .row{display:flex;gap:12px}
-    .col{flex:1}
-    .meta{color:var(--muted);font-size:13px;margin-top:6px}
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-    .status-badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700}
-    .status-open{background:#fff4e6;color:#d97706}
-    .status-in_progress{background:#eef6ff;color:#2563eb}
-    .status-resolved{background:#e9fbe9;color:var(--success)}
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+    }
 
-    .timeline{margin-top:12px;border-left:2px solid #f0f0f0;padding-left:12px}
-    .timeline .evt{margin-bottom:10px}
-    .evt small{color:var(--muted);display:block}
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-    .actions{display:flex;gap:8px;margin-top:12px}
+    .brand h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 2px;
+    }
 
-    .empty{padding:14px;border-radius:10px;background:#fff;border:1px dashed #eee;color:var(--muted);text-align:center}
+    .brand p {
+      font-size: 12px;
+      color: var(--muted);
+    }
 
-    .skeleton{height:12px;background:linear-gradient(90deg,#eee,#f7f7f7,#eee);border-radius:6px;animation:shine 1.2s linear infinite}
-    @keyframes shine{to{transform:translateX(120%)}}
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-    @media (max-width:700px){ .controls{flex-direction:column;align-items:stretch} .row{flex-direction:column} .actions{flex-wrap:wrap} }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--light);
+      border-radius: 10px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .user-details h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .user-details p {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .auth-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .auth-btn-primary {
+      background: linear-gradient(135deg, var(--primary), #6b3920);
+      color: white;
+    }
+
+    .auth-btn-primary:hover {
+      background: linear-gradient(135deg, #6b3920, var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(78, 43, 24, 0.25);
+    }
+
+    .auth-btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .auth-btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      min-height: calc(100vh - 82px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--card);
+      padding: 24px 0;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-header {
+      padding: 0 24px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .nav-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 16px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      font-size: 15px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--light);
+      color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(139, 69, 19, 0.1), rgba(212, 163, 115, 0.1));
+      color: var(--primary);
+      border-left: 4px solid var(--primary);
+    }
+
+    .nav-btn i {
+      width: 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .nav-btn:hover i,
+    .nav-btn.active i {
+      color: var(--primary);
+    }
+
+    .nav-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .admin-section {
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .admin-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      padding: 0 24px 12px;
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+      background: var(--light);
+    }
+    
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .card {
+      background: var(--card);
+      padding: 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      margin-bottom: 24px;
+    }
+    
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+    
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
+    label {
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    
+    input[type="text"] {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 2px solid #e9ecef;
+      font-size: 16px;
+      transition: var(--transition);
+      background: var(--card);
+      color: inherit;
+    }
+    
+    .dark-mode input[type="text"] {
+      border-color: #333;
+      background: #2a2a2a;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+    }
+    
+    .input-with-icon {
+      position: relative;
+      flex: 1;
+    }
+    
+    .input-with-icon i {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted-light);
+    }
+    
+    .input-with-icon input {
+      padding-left: 50px;
+      width: 100%;
+    }
+    
+    button {
+      padding: 14px 22px;
+      border-radius: 12px;
+      border: 0;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 15px;
+    }
+    
+    button:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid #e9ecef;
+    }
+    
+    .dark-mode button.ghost {
+      border-color: #444;
+    }
+    
+    button.ghost:hover {
+      background: rgba(139, 69, 19, 0.1);
+      border-color: var(--accent);
+    }
+    
+    .dark-mode button.ghost:hover {
+      background: rgba(212, 165, 116, 0.1);
+    }
+    
+    .result {
+      margin-top: 28px;
+      padding: 24px;
+      border-radius: var(--radius);
+      background: #fafafa;
+      border: 2px solid #f0f0f0;
+      display: none;
+      transition: var(--transition);
+    }
+    
+    .dark-mode .result {
+      background: #2a2a2a;
+      border-color: #333;
+    }
+    
+    .row {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .col {
+      flex: 1;
+    }
+    
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 14px;
+      gap: 6px;
+    }
+    
+    .status-open {
+      background: rgba(255, 193, 7, 0.15);
+      color: #ff9800;
+    }
+    
+    .status-in_progress {
+      background: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+    }
+    
+    .status-resolved {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4caf50;
+    }
+    
+    .status-closed {
+      background: rgba(158, 158, 158, 0.15);
+      color: #9e9e9e;
+    }
+    
+    .timeline {
+      margin-top: 20px;
+      border-left: 3px solid #f0f0f0;
+      padding-left: 20px;
+      position: relative;
+    }
+    
+    .dark-mode .timeline {
+      border-left-color: #444;
+    }
+    
+    .timeline .evt {
+      margin-bottom: 20px;
+      position: relative;
+      padding-left: 12px;
+    }
+    
+    .timeline .evt::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    
+    .evt small {
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .empty {
+      padding: 40px 20px;
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 2px dashed #eee;
+      color: var(--muted);
+      text-align: center;
+      transition: var(--transition);
+    }
+    
+    .dark-mode .empty {
+      border-color: #444;
+    }
+    
+    .skeleton {
+      height: 14px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      border-radius: 8px;
+      background-size: 200% 100%;
+      animation: shine 1.5s infinite;
+    }
+    
+    .dark-mode .skeleton {
+      background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+    }
+    
+    @keyframes shine {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    .skeleton-card {
+      padding: 20px;
+    }
+    
+    .theme-toggle {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+    
+    .theme-toggle:hover {
+      background: rgba(139, 69, 19, 0.1);
+    }
+    
+    .dark-mode .theme-toggle:hover {
+      background: rgba(212, 165, 116, 0.1);
+    }
+    
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 12px;
+      margin-left: 10px;
+      gap: 4px;
+    }
+    
+    .priority-high {
+      background: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+    }
+    
+    .priority-medium {
+      background: rgba(255, 193, 7, 0.15);
+      color: #ff9800;
+    }
+    
+    .priority-low {
+      background: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+    }
+    
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .stat-card {
+      flex: 1;
+      min-width: 150px;
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid #e9ecef;
+      transition: var(--transition);
+    }
+    
+    .dark-mode .stat-card {
+      background: #2a2a2a;
+      border-color: #333;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    
+    .recent-tickets {
+      margin-top: 24px;
+    }
+    
+    .recent-list {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    
+    .recent-ticket {
+      padding: 8px 16px;
+      background: #f8f9fa;
+      border-radius: 50px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid #e9ecef;
+    }
+    
+    .dark-mode .recent-ticket {
+      background: #2a2a2a;
+      border-color: #333;
+    }
+    
+    .recent-ticket:hover {
+      background: #e9ecef;
+      transform: translateY(-2px);
+    }
+    
+    .dark-mode .recent-ticket:hover {
+      background: #3a3a3a;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 16px 24px;
+      background: var(--success);
+      color: white;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      display: none;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Loading State */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Footer */
+    .footer {
+      background: var(--dark);
+      color: white;
+      padding: 24px 32px;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-logo .logo {
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+    }
+
+    .footer-logo h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .footer-copyright {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Utility Classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .visible {
+      display: block !important;
+    }
+
+    .flex {
+      display: flex !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-muted {
+      color: var(--muted);
+    }
+    
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        padding: 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+      
+      .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+      
+      .nav-btn {
+        white-space: nowrap;
+      }
+      
+      .card {
+        padding: 24px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .row {
+        flex-direction: column;
+      }
+      
+      .actions {
+        flex-wrap: wrap;
+      }
+      
+      .stats {
+        flex-direction: column;
+      }
+      
+      .header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 24px;
+      }
+      
+      .main-content {
+        padding: 16px;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Track your ticket</h1>
-      <p class="muted">Enter your Ticket ID (example: <code>TOM-1764764832218-H9QJ4</code>) or paste one from an email.</p>
-
-      <label for="ticketId">Ticket ID</label>
-      <div class="controls">
-        <input id="ticketId" type="text" placeholder="TOM-..." aria-label="Ticket ID" />
-        <button id="btnTrack">Look up ticket</button>
-        <button id="btnClear" class="ghost" title="Clear input">Clear</button>
-      </div>
-
-      <div class="actions" style="margin-top:8px">
-        <button id="btnShare" class="ghost" title="Copy shareable link">Copy link</button>
-        <button id="btnDownload" class="ghost" title="Download JSON" style="display:none">Download JSON</button>
-      </div>
-
-      <div id="result" class="result" role="region" aria-live="polite"></div>
-
-      <p class="muted" style="margin-top:14px">If you don't have the ticket ID, ask IT for your Ticket ID.</p>
-    </div>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="globalLoading">
+    <div class="loading-spinner"></div>
   </div>
 
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <div class="logo">
+        <img src="./assets/logo.jpg" alt="Tomoca Coffee Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='☕'; this.parentElement.style.fontSize='24px';">
+      </div>
+      <div class="brand">
+        <h1>Tomoca IT Support</h1>
+        <p id="headerStatus">Track Ticket</p>
+      </div>
+    </div>
+    <div class="header-actions" id="authControls">
+      <!-- Will be populated by JavaScript -->
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-header">
+        <h3><i class="fas fa-compass"></i> Navigation</h3>
+      </div>
+      <nav class="nav" id="mainNav">
+        <!-- User navigation will be populated by JavaScript -->
+      </nav>
+      
+      <!-- Admin Section -->
+      <div class="admin-section hidden" id="adminSection">
+        <div class="nav-divider"></div>
+        <div class="admin-label">Administration</div>
+        <nav class="nav" id="adminNav">
+          <!-- Admin navigation will be populated by JavaScript -->
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+      <div class="wrap">
+        <div class="card">
+          <h1>Track Your Support Ticket</h1>
+          <p class="subtitle">Enter your Ticket ID (example: <code>TOM-1764764832218-H9QJ4</code>) or paste one from an email. You can also scan a QR code if available.</p>
+          
+          <label for="ticketId">
+            <i class="fas fa-ticket-alt"></i> Ticket ID
+          </label>
+          <div class="controls">
+            <div class="input-with-icon">
+              <i class="fas fa-search"></i>
+              <input id="ticketId" type="text" placeholder="TOM-1764..." aria-label="Ticket ID" />
+            </div>
+            <button id="btnTrack">
+              <i class="fas fa-search"></i> Lookup Ticket
+            </button>
+            <button id="btnClear" class="ghost" title="Clear input">
+              <i class="fas fa-times"></i> Clear
+            </button>
+          </div>
+          
+          <div class="recent-tickets" id="recentTicketsContainer" style="display: none;">
+            <label>Recent Tickets</label>
+            <div class="recent-list" id="recentTickets"></div>
+          </div>
+          
+          <div class="actions">
+            <button id="btnShare" class="ghost" title="Copy shareable link">
+              <i class="fas fa-share-alt"></i> Copy Link
+            </button>
+            <button id="btnRefresh" class="ghost" title="Refresh ticket data" style="display:none">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button id="btnDownload" class="ghost" title="Download JSON" style="display:none">
+              <i class="fas fa-download"></i> Download JSON
+            </button>
+            <button id="btnPrint" class="ghost" title="Print ticket" style="display:none">
+              <i class="fas fa-print"></i> Print
+            </button>
+            <button id="btnTheme" class="ghost" title="Toggle dark mode">
+              <i class="fas fa-moon"></i> Theme
+            </button>
+          </div>
+          
+          <div id="result" class="result" role="region" aria-live="polite"></div>
+          
+          <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+              <div class="stat-value" id="statDaysOpen">0</div>
+              <div class="stat-label">Days Open</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statUpdates">0</div>
+              <div class="stat-label">Updates</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statResponseTime">0h</div>
+              <div class="stat-label">Avg. Response Time</div>
+            </div>
+          </div>
+          
+          <p class="muted" style="margin-top: 24px;">
+            <i class="fas fa-info-circle"></i> If you don't have the ticket ID, please contact IT support for assistance.
+          </p>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+          <h3 style="margin-bottom: 12px;">Need Help?</h3>
+          <p class="muted" style="margin-bottom: 16px;">Check our knowledge base or contact support</p>
+          <div class="actions" style="justify-content: center;">
+            <button class="ghost" id="btnHelp">
+              <i class="fas fa-question-circle"></i> Help Center
+            </button>
+            <button class="ghost" id="btnContact">
+              <i class="fas fa-headset"></i> Contact Support
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <div class="logo">
+          <i class="fas fa-coffee"></i>
+        </div>
+        <h3>Tomoca IT Support</h3>
+      </div>
+      <div class="footer-copyright">
+        © 2024 Tomoca Coffee. Enterprise Support System
+      </div>
+    </div>
+  </footer>
+  
+  <div id="notification" class="notification"></div>
+
+<!-- Include Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
-  // Backend endpoint left unchanged
+  // Backend endpoint
   const BACKEND_BASE = 'https://tomoca.onrender.com';
+  
+  // Admin email list
+  const ADMIN_EMAILS = ['btesfaye236@gmail.com', 'bereket@gmail.com'];
 
-  const btn = document.getElementById('btnTrack');
-  const input = document.getElementById('ticketId');
-  const result = document.getElementById('result');
-  const btnClear = document.getElementById('btnClear');
-  const btnShare = document.getElementById('btnShare');
-  const btnDownload = document.getElementById('btnDownload');
-
-  function showEmpty(){ result.style.display='block'; result.innerHTML = '<div class="empty">Enter a ticket ID and click <strong>Look up ticket</strong>.</div>'; btnDownload.style.display='none'; }
-  function showLoading(){ result.style.display='block'; result.innerHTML = '<div class="row"><div class="col"><div class="skeleton" style="width:60%;height:16px;margin-bottom:8px"></div><div class="skeleton" style="width:40%;height:12px;margin-bottom:6px"></div><div class="skeleton" style="width:80%;height:12px"></div></div></div>'; btnDownload.style.display='none'; }
-
-  function escapeHtml(str){ return String(str||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
-
-  function formatDateFlexible(value){
-    if(!value) return '—';
-    const d = new Date(value);
-    if(isNaN(d)) return String(value);
-    return d.toLocaleString();
+  // Initialize Supabase
+  const SUPABASE_URL = 'https://zdxjvqmwblcpewogcxmd.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkeGp2cW13YmxjcGV3b2djeG1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NjU0MjIsImV4cCI6MjA4MTU0MTQyMn0.JKvDcX9MTUESD1e3fAWN_SeUzojUaaez5ZXOwPU8psM';
+  
+  let supabase;
+  let currentUser = null;
+  
+  try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('Supabase initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize Supabase:', error);
   }
 
-  async function lookup(id){
-    if(!id) { showEmpty(); return; }
-    showLoading();
+  // DOM elements
+  const elements = {
+    globalLoading: document.getElementById('globalLoading'),
+    authControls: document.getElementById('authControls'),
+    headerStatus: document.getElementById('headerStatus'),
+    sidebar: document.getElementById('sidebar'),
+    mainNav: document.getElementById('mainNav'),
+    adminSection: document.getElementById('adminSection'),
+    adminNav: document.getElementById('adminNav'),
+    btnTrack: document.getElementById('btnTrack'),
+    ticketId: document.getElementById('ticketId'),
+    result: document.getElementById('result'),
+    btnClear: document.getElementById('btnClear'),
+    btnShare: document.getElementById('btnShare'),
+    btnDownload: document.getElementById('btnDownload'),
+    btnRefresh: document.getElementById('btnRefresh'),
+    btnPrint: document.getElementById('btnPrint'),
+    btnTheme: document.getElementById('btnTheme'),
+    btnHelp: document.getElementById('btnHelp'),
+    btnContact: document.getElementById('btnContact'),
+    recentTicketsContainer: document.getElementById('recentTicketsContainer'),
+    recentTickets: document.getElementById('recentTickets'),
+    stats: document.getElementById('stats'),
+    notification: document.getElementById('notification')
+  };
+  
+  // State
+  let currentTicketId = '';
+  let recentSearches = JSON.parse(localStorage.getItem('tomocaRecentTickets') || '[]');
+  
+  // Initialize theme
+  const savedTheme = localStorage.getItem('tomocaTheme') || 'light';
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark-mode');
+    elements.btnTheme.innerHTML = '<i class="fas fa-sun"></i> Theme';
+  }
+
+  // Initialize
+  document.addEventListener('DOMContentLoaded', init);
+
+  async function init() {
+    // Check authentication
+    await checkCurrentSession();
+    
+    // Setup event listeners
+    setupEventListeners();
+    
+    // Initialize track functionality
+    initializeTrackFunctionality();
+    
+    // Show empty state
+    showEmpty();
+  }
+
+  async function checkCurrentSession() {
+    if (!supabase) {
+      console.error('Supabase not initialized');
+      return;
+    }
+
+    showLoading(true);
     try {
-      const res = await fetch(`${BACKEND_BASE}/ticket?id=${encodeURIComponent(id)}`);
-      if(!res.ok){
-        const err = await res.json().catch(()=>null);
-        result.innerHTML = `<div style="color:var(--danger)">Error: ${escapeHtml(err?.message || res.statusText || res.status)}</div>`;
-        return;
-      }
-      const data = await res.json();
-      if(!data || !data.success){
-        result.innerHTML = `<div><strong>Not found</strong><div class="muted">${escapeHtml((data && data.message) || 'No ticket found')}</div></div>`;
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Error checking session:', error);
+        showLoading(false);
+        redirectToLogin();
         return;
       }
 
-      const t = data.ticket || data;
-      // Build enhanced UI while keeping fields (ticketId, status, created_at, updated_at, description)
-      const idVal = t.ticketId || t.id || t.ticketid || '';
-      const status = (t.status || 'open').toString();
-      const statusKey = status.toLowerCase().replace(' ','_');
-      const created = formatDateFlexible(t.createdAt || t.created_at || t.created);
-      const updated = formatDateFlexible(t.updatedAt || t.updated_at || t.updated);
-      const desc = escapeHtml(t.description || t.issue || t.message || t.summary || '—');
-
-      let html = '';
-      html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-        <div>
-          <h2 style="margin:0">${escapeHtml(idVal)}</h2>
-          <div class="meta">${escapeHtml(t.department || '')} • <span class="status-badge status-${statusKey}">${escapeHtml(status)}</span></div>
-        </div>
-        <div style="text-align:right">
-          <div class="meta">Created: ${escapeHtml(created)}</div>
-          <div class="meta">Updated: ${escapeHtml(updated)}</div>
-        </div>
-      </div>`;
-
-      html += `<hr style="margin:12px 0" />`;
-      html += `<div><strong class="muted">Issue</strong><div style="margin-top:8px">${desc.replace(/\n/g,'<br/>')}</div></div>`;
-
-      // optional timeline / history
-      if(Array.isArray(t.history) && t.history.length){
-        html += `<div style="margin-top:12px"><strong class="muted">Timeline</strong><div class="timeline">${t.history.map(ev => {
-          const who = escapeHtml(ev.actor || ev.user || ev.by || 'System');
-          const at = escapeHtml(formatDateFlexible(ev.at || ev.timestamp || ev.time || ev.date));
-          const note = escapeHtml(ev.note || ev.message || ev.action || '');
-          return `<div class="evt"><strong>${who}</strong><small>${at}</small><div style="margin-top:6px;color:var(--muted)">${note}</div></div>`;
-        }).join('')}</div></div>`;
+      if (session?.user) {
+        // Get user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('Error fetching profile:', profileError);
+        }
+        
+        // Determine if user is admin
+        const isAdmin = ADMIN_EMAILS.includes(session.user.email) || (profile?.role === 'admin');
+        
+        // Set current user
+        currentUser = {
+          id: session.user.id,
+          email: session.user.email,
+          name: profile?.name || session.user.user_metadata?.name || session.user.email.split('@')[0],
+          role: profile?.role || 'user',
+          isAdmin: isAdmin
+        };
+        
+        console.log('Current user set:', currentUser);
+        
+        // Update UI
+        updateUI();
+      } else {
+        redirectToLogin();
       }
-
-      result.innerHTML = html;
-      btnDownload.style.display = 'inline-block';
-
-      // wire download & share
-      btnDownload.onclick = ()=>{
-        const payload = JSON.stringify(t, null, 2);
-        const blob = new Blob([payload], {type:'application/json'});
-        const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`ticket-${idVal || id}.json`; a.click(); URL.revokeObjectURL(url);
-      };
-
-      btnShare.onclick = ()=>{
-        const url = new URL(location.href); url.searchParams.set('ticket', id);
-        const link = url.toString();
-        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(()=>alert('Link copied'));
-        else prompt('Copy link', link);
-      };
-
-    } catch(err){
-      console.error(err);
-      result.innerHTML = `<div style="color:var(--danger)">Network error — check backend URL or console</div>`;
+    } catch (error) {
+      console.error('Session check error:', error);
+      redirectToLogin();
+    } finally {
+      showLoading(false);
     }
   }
 
-  // wire UI events
-  btn.addEventListener('click', ()=> lookup(input.value.trim()));
-  input.addEventListener('keypress', e=>{ if(e.key === 'Enter') lookup(input.value.trim()); });
-  btnClear.addEventListener('click', ()=>{ input.value=''; showEmpty(); });
+  function setupEventListeners() {
+    // Track button
+    elements.btnTrack.addEventListener('click', () => {
+      const id = elements.ticketId.value.trim();
+      if (id) lookup(id);
+    });
+    
+    // Enter key in input
+    elements.ticketId.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        const id = elements.ticketId.value.trim();
+        if (id) lookup(id);
+      }
+    });
+    
+    // Clear button
+    elements.btnClear.addEventListener('click', () => {
+      elements.ticketId.value = '';
+      elements.ticketId.focus();
+      showEmpty();
+    });
+    
+    // Theme toggle
+    elements.btnTheme.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark-mode');
+      if (document.documentElement.classList.contains('dark-mode')) {
+        elements.btnTheme.innerHTML = '<i class="fas fa-sun"></i> Theme';
+        localStorage.setItem('tomocaTheme', 'dark');
+      } else {
+        elements.btnTheme.innerHTML = '<i class="fas fa-moon"></i> Theme';
+        localStorage.setItem('tomocaTheme', 'light');
+      }
+    });
+    
+    // Help buttons
+    elements.btnHelp.addEventListener('click', () => {
+      showNotification('Redirecting to help center...', 'info');
+      setTimeout(() => {
+        window.open('https://tomoca.it/help', '_blank');
+      }, 500);
+    });
+    
+    elements.btnContact.addEventListener('click', () => {
+      showNotification('Opening contact form...', 'info');
+      setTimeout(() => {
+        window.open('mailto:support@tomoca.it?subject=Support Request', '_blank');
+      }, 500);
+    });
+  }
 
-  // if ?ticket=... present in URL, auto lookup
-  const qTicket = new URLSearchParams(location.search).get('ticket');
-  if(qTicket){ input.value = qTicket; lookup(qTicket); }
+  function initializeTrackFunctionality() {
+    // Check for ticket in URL
+    const qTicket = new URLSearchParams(location.search).get('ticket');
+    if (qTicket) {
+      elements.ticketId.value = qTicket;
+      lookup(qTicket);
+    }
+    
+    // Initialize recent tickets
+    updateRecentTickets();
+  }
 
-  // initial state
-  showEmpty();
+  function updateUI() {
+    // Update header
+    if (currentUser) {
+      elements.headerStatus.textContent = `Track Ticket - Welcome, ${currentUser.name}`;
+      
+      elements.authControls.innerHTML = `
+        <div class="user-info">
+          <div class="user-avatar">${currentUser.name.charAt(0).toUpperCase()}</div>
+          <div class="user-details">
+            <h4>${currentUser.name}</h4>
+            <p>${currentUser.email}</p>
+            ${currentUser.isAdmin ? '<small style="color: var(--warning); font-weight: 600;">ADMIN</small>' : ''}
+          </div>
+        </div>
+        <button class="auth-btn auth-btn-secondary" id="signoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+      `;
+      
+      document.getElementById('signoutBtn').addEventListener('click', handleSignOut);
+      
+      // Update navigation
+      updateNavigation();
+    } else {
+      redirectToLogin();
+    }
+  }
+
+  function updateNavigation() {
+    if (!currentUser) return;
+    
+    // Clear existing navigation
+    elements.mainNav.innerHTML = '';
+    
+    // Regular user navigation
+    const userNavItems = [
+      { href: 'submit-ticket.html', icon: 'fa-plus-circle', text: 'Submit Ticket' },
+      { href: 'track.html', icon: 'fa-search', text: 'Track Ticket', active: true },
+      { href: 'faq.html', icon: 'fa-question-circle', text: 'FAQ' },
+      { href: 'contact-it.html', icon: 'fa-headset', text: 'Contact IT' }
+    ];
+    
+    // Add user navigation items
+    userNavItems.forEach(item => {
+      const a = document.createElement('a');
+      a.className = `nav-btn ${item.active ? 'active' : ''}`;
+      a.href = item.href;
+      a.innerHTML = `<i class="fas ${item.icon}"></i> ${item.text}`;
+      elements.mainNav.appendChild(a);
+    });
+    
+    // Admin navigation (if user is admin)
+    if (currentUser.isAdmin) {
+      elements.adminSection.classList.remove('hidden');
+      
+      const adminNavItems = [
+        { href: 'admin-dashboard.html', icon: 'fa-chart-line', text: 'Admin Dashboard' },
+        { href: 'all-tickets.html', icon: 'fa-ticket-alt', text: 'All Tickets' },
+        { href: 'admin-history.html', icon: 'fa-history', text: 'History' }
+      ];
+      
+      // Add admin navigation items
+      adminNavItems.forEach(item => {
+        const a = document.createElement('a');
+        a.className = 'nav-btn';
+        a.href = item.href;
+        a.innerHTML = `<i class="fas ${item.icon}"></i> ${item.text}`;
+        elements.adminNav.appendChild(a);
+      });
+    } else {
+      elements.adminSection.classList.add('hidden');
+    }
+  }
+
+  async function handleSignOut() {
+    if (!supabase) return;
+    
+    showLoading(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        return;
+      }
+      
+      currentUser = null;
+      window.location.href = 'index.html';
+    } catch (error) {
+      console.error('Sign out error:', error);
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function redirectToLogin() {
+    window.location.href = 'index.html';
+  }
+
+  // Show notification
+  function showNotification(message, type = 'success') {
+    elements.notification.textContent = message;
+    elements.notification.style.background = type === 'success' ? 'var(--success)' : 
+                                  type === 'error' ? 'var(--danger)' : 
+                                  type === 'warning' ? 'var(--warning)' : 'var(--info)';
+    elements.notification.style.display = 'block';
+    
+    setTimeout(() => {
+      elements.notification.style.display = 'none';
+    }, 3000);
+  }
+  
+  // Update recent tickets
+  function updateRecentTickets() {
+    if (recentSearches.length > 0) {
+      elements.recentTicketsContainer.style.display = 'block';
+      elements.recentTickets.innerHTML = '';
+      
+      recentSearches.slice(0, 5).forEach(ticketId => {
+        const elem = document.createElement('div');
+        elem.className = 'recent-ticket';
+        elem.textContent = ticketId;
+        elem.addEventListener('click', () => {
+          elements.ticketId.value = ticketId;
+          lookup(ticketId);
+        });
+        elements.recentTickets.appendChild(elem);
+      });
+    } else {
+      elements.recentTicketsContainer.style.display = 'none';
+    }
+  }
+  
+  // Add to recent tickets
+  function addToRecent(ticketId) {
+    if (!ticketId) return;
+    
+    // Remove if already exists
+    recentSearches = recentSearches.filter(id => id !== ticketId);
+    // Add to beginning
+    recentSearches.unshift(ticketId);
+    // Keep only last 10
+    recentSearches = recentSearches.slice(0, 10);
+    
+    localStorage.setItem('tomocaRecentTickets', JSON.stringify(recentSearches));
+    updateRecentTickets();
+  }
+  
+  // Show empty state
+  function showEmpty() {
+    elements.result.style.display = 'block';
+    elements.result.innerHTML = `
+      <div class="empty">
+        <i class="fas fa-ticket-alt" style="font-size: 48px; margin-bottom: 16px; color: var(--muted-light);"></i>
+        <h3 style="margin-bottom: 8px;">No Ticket Selected</h3>
+        <p>Enter a ticket ID and click <strong>Lookup Ticket</strong> to view details.</p>
+      </div>
+    `;
+    elements.btnDownload.style.display = 'none';
+    elements.btnRefresh.style.display = 'none';
+    elements.btnPrint.style.display = 'none';
+    elements.stats.style.display = 'none';
+  }
+  
+  // Show loading state
+  function showLoading() {
+    elements.result.style.display = 'block';
+    elements.result.innerHTML = `
+      <div class="skeleton-card">
+        <div class="row">
+          <div class="col">
+            <div class="skeleton" style="width: 60%; height: 24px; margin-bottom: 12px;"></div>
+            <div class="skeleton" style="width: 40%; height: 16px; margin-bottom: 24px;"></div>
+            <div class="skeleton" style="width: 100%; height: 14px; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="width: 90%; height: 14px; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="width: 80%; height: 14px; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="width: 70%; height: 14px; margin-bottom: 24px;"></div>
+            <div class="skeleton" style="width: 50%; height: 16px; margin-bottom: 12px;"></div>
+            <div class="skeleton" style="width: 100%; height: 14px; margin-bottom: 8px;"></div>
+            <div class="skeleton" style="width: 90%; height: 14px;"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    elements.btnDownload.style.display = 'none';
+    elements.btnRefresh.style.display = 'none';
+    elements.btnPrint.style.display = 'none';
+    elements.stats.style.display = 'none';
+  }
+  
+  // Escape HTML
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[c]);
+  }
+  
+  // Format date
+  function formatDateFlexible(value) {
+    if (!value) return '—';
+    const d = new Date(value);
+    if (isNaN(d)) return String(value);
+    return d.toLocaleString();
+  }
+  
+  // Calculate days between dates
+  function daysBetween(date1, date2) {
+    const diff = Math.abs(new Date(date2) - new Date(date1));
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+  
+  // Calculate average response time
+  function calculateAvgResponse(history) {
+    if (!Array.isArray(history) || history.length < 2) return 'N/A';
+    
+    let totalHours = 0;
+    let count = 0;
+    
+    for (let i = 1; i < history.length; i++) {
+      const prevTime = new Date(history[i-1].timestamp || history[i-1].at);
+      const currTime = new Date(history[i].timestamp || history[i].at);
+      
+      if (!isNaN(prevTime) && !isNaN(currTime)) {
+        totalHours += (currTime - prevTime) / (1000 * 60 * 60);
+        count++;
+      }
+    }
+    
+    return count > 0 ? Math.round(totalHours / count) + 'h' : 'N/A';
+  }
+  
+  // Main lookup function
+  async function lookup(id) {
+    if (!id) {
+      showEmpty();
+      return;
+    }
+    
+    currentTicketId = id;
+    showLoading();
+    
+    try {
+      const res = await fetch(`${BACKEND_BASE}/ticket?id=${encodeURIComponent(id)}`);
+      
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        elements.result.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); margin-bottom: 16px;"></i>
+            <h3 style="margin-bottom: 8px;">Error Loading Ticket</h3>
+            <div class="muted">${escapeHtml(err?.message || res.statusText || `Status: ${res.status}`)}</div>
+            <button class="ghost" style="margin-top: 20px;" onclick="lookup('${escapeHtml(id)}')">
+              <i class="fas fa-redo"></i> Retry
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      const data = await res.json();
+      
+      if (!data || !data.success) {
+        elements.result.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px;">
+            <i class="fas fa-search" style="font-size: 48px; color: var(--muted); margin-bottom: 16px;"></i>
+            <h3 style="margin-bottom: 8px;">Ticket Not Found</h3>
+            <div class="muted">${escapeHtml((data && data.message) || 'No ticket found with this ID')}</div>
+            <p class="muted" style="margin-top: 12px;">Please check the ID and try again.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const t = data.ticket || data;
+      // Build enhanced UI
+      const idVal = t.ticketId || t.id || t.ticketid || '';
+      const status = (t.status || 'open').toString();
+      const statusKey = status.toLowerCase().replace(' ', '_');
+      const created = formatDateFlexible(t.createdAt || t.created_at || t.created);
+      const updated = formatDateFlexible(t.updatedAt || t.updated_at || t.updated);
+      const desc = escapeHtml(t.description || t.issue || t.message || t.summary || '—');
+      const priority = t.priority || 'medium';
+      
+      // Calculate stats
+      const daysOpen = daysBetween(t.createdAt || t.created_at || t.created, new Date());
+      const updateCount = Array.isArray(t.history) ? t.history.length : 0;
+      const avgResponse = calculateAvgResponse(t.history || []);
+      
+      let html = '';
+      
+      // Header with ID and status
+      html += `
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+          <div>
+            <h2 style="margin: 0; display: flex; align-items: center; gap: 12px;">
+              ${escapeHtml(idVal)}
+              <span class="priority-badge priority-${priority}">
+                <i class="fas fa-flag"></i> ${priority.charAt(0).toUpperCase() + priority.slice(1)}
+              </span>
+            </h2>
+            <div class="meta" style="margin-top: 8px;">
+              ${escapeHtml(t.department || 'General IT')} • 
+              <span class="status-badge status-${statusKey}">
+                <i class="fas fa-circle" style="font-size: 8px;"></i>
+                ${escapeHtml(status)}
+              </span>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="meta"><i class="far fa-calendar-plus"></i> Created: ${escapeHtml(created)}</div>
+            <div class="meta"><i class="far fa-calendar-check"></i> Updated: ${escapeHtml(updated)}</div>
+          </div>
+        </div>
+      `;
+      
+      html += `<hr style="margin: 24px 0; border: none; border-top: 2px solid #f0f0f0;" />`;
+      
+      // Issue description
+      html += `
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <i class="fas fa-bug" style="color: var(--accent);"></i>
+            <strong style="color: var(--muted);">Issue Description</strong>
+          </div>
+          <div style="margin-top: 8px; padding: 16px; background: #f8f9fa; border-radius: 12px; line-height: 1.6;">
+            ${desc.replace(/\n/g, '<br/>')}
+          </div>
+        </div>
+      `;
+      
+      // Assigned to (if available)
+      if (t.assignedTo || t.assignee) {
+        html += `
+          <div style="margin-top: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <i class="fas fa-user" style="color: var(--accent);"></i>
+              <strong style="color: var(--muted);">Assigned To</strong>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 36px; height: 36px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                ${escapeHtml((t.assignedTo || t.assignee).charAt(0).toUpperCase())}
+              </div>
+              <span>${escapeHtml(t.assignedTo || t.assignee)}</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Timeline / history
+      if (Array.isArray(t.history) && t.history.length) {
+        html += `
+          <div style="margin-top: 28px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+              <i class="fas fa-history" style="color: var(--accent);"></i>
+              <strong style="color: var(--muted);">Timeline</strong>
+              <span class="meta" style="margin-left: auto;">${t.history.length} updates</span>
+            </div>
+            <div class="timeline">
+              ${t.history.map(ev => {
+                const who = escapeHtml(ev.actor || ev.user || ev.by || 'System');
+                const at = escapeHtml(formatDateFlexible(ev.at || ev.timestamp || ev.time || ev.date));
+                const note = escapeHtml(ev.note || ev.message || ev.action || '');
+                const icon = ev.action && ev.action.includes('created') ? 'fa-plus-circle' :
+                           ev.action && ev.action.includes('resolved') ? 'fa-check-circle' :
+                           ev.action && ev.action.includes('comment') ? 'fa-comment' : 'fa-circle';
+                const iconColor = ev.action && ev.action.includes('created') ? 'var(--success)' :
+                                ev.action && ev.action.includes('resolved') ? 'var(--success)' :
+                                ev.action && ev.action.includes('comment') ? 'var(--info)' : 'var(--accent)';
+                
+                return `
+                  <div class="evt">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                      <i class="fas ${icon}" style="color: ${iconColor}; font-size: 14px;"></i>
+                      <strong>${who}</strong>
+                    </div>
+                    <small><i class="far fa-clock"></i> ${at}</small>
+                    <div style="margin-top: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px; color: #555;">
+                      ${note}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      elements.result.innerHTML = html;
+      elements.btnDownload.style.display = 'inline-flex';
+      elements.btnRefresh.style.display = 'inline-flex';
+      elements.btnPrint.style.display = 'inline-flex';
+      
+      // Update stats
+      document.getElementById('statDaysOpen').textContent = daysOpen;
+      document.getElementById('statUpdates').textContent = updateCount;
+      document.getElementById('statResponseTime').textContent = avgResponse;
+      elements.stats.style.display = 'flex';
+      
+      // Add to recent searches
+      addToRecent(idVal);
+      
+      // Wire up buttons
+      elements.btnDownload.onclick = () => {
+        const payload = JSON.stringify(t, null, 2);
+        const blob = new Blob([payload], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ticket-${idVal || id}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showNotification('Ticket data downloaded successfully!', 'success');
+      };
+      
+      elements.btnRefresh.onclick = () => {
+        lookup(idVal || id);
+        showNotification('Refreshing ticket data...', 'info');
+      };
+      
+      elements.btnPrint.onclick = () => {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Ticket: ${idVal}</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h1 { color: #8B4513; }
+                .meta { color: #666; font-size: 14px; }
+                .status { display: inline-block; padding: 4px 12px; border-radius: 12px; background: #f0f0f0; }
+              </style>
+            </head>
+            <body>
+              <h1>Ticket: ${idVal}</h1>
+              <div class="meta">Status: <span class="status">${status}</span></div>
+              <div class="meta">Created: ${created}</div>
+              <div class="meta">Updated: ${updated}</div>
+              <hr>
+              <h3>Issue Description</h3>
+              <p>${desc.replace(/\n/g, '<br/>')}</p>
+              ${t.assignedTo ? `<p><strong>Assigned to:</strong> ${t.assignedTo}</p>` : ''}
+              <hr>
+              <p>Printed from Tomoca IT Support on ${new Date().toLocaleString()}</p>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      };
+      
+      elements.btnShare.onclick = () => {
+        const url = new URL(location.href);
+        url.searchParams.set('ticket', id);
+        const link = url.toString();
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(() => {
+            showNotification('Link copied to clipboard!', 'success');
+          });
+        } else {
+          prompt('Copy this link:', link);
+        }
+      };
+      
+    } catch (err) {
+      console.error(err);
+      elements.result.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+          <i class="fas fa-wifi" style="font-size: 48px; color: var(--danger); margin-bottom: 16px;"></i>
+          <h3 style="margin-bottom: 8px;">Network Error</h3>
+          <div class="muted">Unable to connect to the server. Please check your connection and try again.</div>
+          <button class="ghost" style="margin-top: 20px;" onclick="lookup('${escapeHtml(currentTicketId)}')">
+            <i class="fas fa-redo"></i> Retry Connection
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  function showLoading(show) {
+    elements.globalLoading.style.display = show ? 'flex' : 'none';
+  }
 </script>
 </body>
 </html>

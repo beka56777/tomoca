@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Ticket - Tomoca IT Support</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4e2b18;
+            --secondary: #d4a373;
+            --light: #f8f5f2;
+            --dark: #2c1810;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --border: #e5e7eb;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f8f5f2 0%, #f0ebe6 100%);
+            color: var(--dark);
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Navigation */
+        .header-nav {
+            background: var(--card);
+            padding: 16px 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 20px;
+        }
+
+        .brand h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2px;
+        }
+
+        .brand p {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+
+        .nav-link {
+            padding: 10px 18px;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary), #6b3920);
+            color: white;
+        }
+
+        .nav-link.logout {
+            background: var(--light);
+            color: var(--danger);
+            border: 1px solid var(--border);
+        }
+
+        .nav-link.logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-details h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .user-details p {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 24px;
+        }
+
+        /* Ticket Form Card */
+        .ticket-form-card {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border-top: 6px solid var(--primary);
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .form-header p {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Form Styles */
+        .form-row {
+            margin-bottom: 24px;
+        }
+
+        .form-row label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-row label i {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            background: white;
+            color: var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        .form-row input:focus,
+        .form-row select:focus,
+        .form-row textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.2);
+        }
+
+        .form-row textarea {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .form-row.split {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row.split .col {
+            flex: 1;
+        }
+
+        .form-row.split .col.small {
+            flex: 0.5;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), #6b3920);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 32px;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, #6b3920, var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 43, 24, 0.25);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 20px 0;
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        .loading-text {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Response Message */
+        .response-message {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 24px;
+            display: none;
+            width: 100%;
+        }
+
+        .response-message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            display: block;
+        }
+
+        .response-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+
+        .response-message.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            display: block;
+        }
+
+        .ticket-id-display {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #6b3920;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 24px 32px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .footer-logo .logo {
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+        }
+
+        .footer-copyright {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--card);
+                flex-direction: column;
+                padding: 16px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                display: none;
+                z-index: 99;
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .ticket-form-card {
+                padding: 24px;
+            }
+            
+            .form-row.split {
+                flex-direction: column;
+            }
+            
+            .form-header h2 {
+                font-size: 24px;
+            }
+            
+            .header-nav {
+                padding: 12px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ticket-form-card {
+                padding: 20px;
+            }
+            
+            .form-header h2 {
+                font-size: 22px;
+            }
+            
+            .submit-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header-nav">
+        <div class="nav-container">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-coffee"></i>
+                </div>
+                <div class="brand">
+                    <h1>Tomoca IT Support</h1>
+                    <p id="headerStatus">Submit Support Ticket</p>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <ul class="nav-links" id="navLinks">
+                <li>
+                    <a href="track.html" class="nav-link" id="trackLink">
+                        <i class="fas fa-search"></i> Track Ticket
+                    </a>
+                </li>
+                <li>
+                    <a href="faq.html" class="nav-link" id="faqLink">
+                        <i class="fas fa-question-circle"></i> FAQ
+                    </a>
+                </li>
+                <li>
+                    <a href="contact-it.html" class="nav-link" id="contactLink">
+                        <i class="fas fa-headset"></i> Contact IT
+                    </a>
+                </li>
+                <li id="userInfoContainer" class="hidden">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-details">
+                            <h4 id="userName">User</h4>
+                            <p id="userEmail">user@example.com</p>
+                        </div>
+                    </div>
+                </li>
+                <li id="authLinks">
+                    <a href="#" class="nav-link logout" id="logoutLink">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="ticket-form-card">
+            <div class="form-header">
+                <h2><i class="fas fa-ticket-alt"></i> Submit Support Ticket</h2>
+                <p>Please describe your issue clearly — our IT team will get back to you promptly.</p>
+            </div>
+
+            <form id="supportForm" autocomplete="off">
+                <div class="form-row">
+                    <label for="name"><i class="fas fa-user"></i> Your Name *</label>
+                    <input id="name" name="name" type="text" placeholder="Enter your full name" required />
+                </div>
+
+                <div class="form-row split">
+                    <div class="col">
+                        <label for="department"><i class="fas fa-building"></i> Department *</label>
+                        <select id="department" name="department" required>
+                            <option value="">Select your department</option>
+                            <option value="HR">Human Resources</option>
+                            <option value="Finance">Finance & Accounting</option>
+                            <option value="Marketing">Marketing & Sales</option>
+                            <option value="Operations">Operations</option>
+                            <option value="Coffee Production">Coffee Production</option>
+                            <option value="Retail">Retail & Stores</option>
+                            <option value="IT">Information Technology</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="col small">
+                        <label for="urgency"><i class="fas fa-exclamation-circle"></i> Urgency *</label>
+                        <select id="urgency" name="urgency" required>
+                            <option value="">Select</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="issue"><i class="fas fa-file-alt"></i> Issue Description *</label>
+                    <textarea id="issue" name="issue" placeholder="Please describe your issue in detail. Include any error messages, steps to reproduce, and what you were trying to accomplish..." required></textarea>
+                </div>
+
+                <button id="submitBtn" class="submit-btn" type="submit">
+                    <i class="fas fa-paper-plane"></i> Submit Ticket
+                </button>
+
+                <!-- Loading indicator -->
+                <div id="loading" class="loading" aria-hidden="true">
+                    <div class="spinner" role="img" aria-label="Loading"></div>
+                    <div class="loading-text">Submitting your ticket...</div>
+                </div>
+
+                <!-- Response message -->
+                <div id="responseMessage" class="response-message" role="status"></div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo">
+                    <i class="fas fa-coffee"></i>
+                </div>
+                <h3>Tomoca IT Support System</h3>
+            </div>
+            <div class="footer-copyright">
+                © 2024 Tomoca Coffee. Enterprise Support System
+            </div>
+        </div>
+    </footer>
+
+    <!-- Include Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        (function() {
+            // Supabase Configuration (same as index.html)
+            const SUPABASE_URL = 'https://zdxjvqmwblcpewogcxmd.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkeGp2cW13YmxjcGV3b2djeG1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NjU0MjIsImV4cCI6MjA4MTU0MTQyMn0.JKvDcX9MTUESD1e3fAWN_SeUzojUaaez5ZXOwPU8psM';
+            const TELEGRAM_BOT_TOKEN = '8251470645:AAGaza7FVhiTBrvtMNK0ycX0pb7q8RCou9Q';
+            const TELEGRAM_CHAT_ID = '-1003189969032';
+
+            // Initialize Supabase
+            let supabase;
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize Supabase:', error);
+                alert('Failed to initialize database connection. Please check console.');
+            }
+
+            // State
+            let currentUser = null;
+
+            // DOM Elements
+            const elements = {
+                mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+                navLinks: document.getElementById('navLinks'),
+                headerStatus: document.getElementById('headerStatus'),
+                userInfoContainer: document.getElementById('userInfoContainer'),
+                authLinks: document.getElementById('authLinks'),
+                logoutLink: document.getElementById('logoutLink'),
+                userName: document.getElementById('userName'),
+                userEmail: document.getElementById('userEmail'),
+                userAvatar: document.getElementById('userAvatar'),
+                trackLink: document.getElementById('trackLink'),
+                faqLink: document.getElementById('faqLink'),
+                contactLink: document.getElementById('contactLink'),
+                
+                // Form elements
+                supportForm: document.getElementById('supportForm'),
+                submitBtn: document.getElementById('submitBtn'),
+                loading: document.getElementById('loading'),
+                responseMessage: document.getElementById('responseMessage')
+            };
+
+            // Initialize
+            document.addEventListener('DOMContentLoaded', init);
+
+            async function init() {
+                console.log('Initializing Submit Ticket Page...');
+                
+                // Setup event listeners
+                setupEventListeners();
+                
+                // Check if user is already logged in
+                await checkCurrentSession();
+                
+                // Auto-fill name if user is logged in
+                if (currentUser) {
+                    document.getElementById('name').value = currentUser.name || '';
+                }
+            }
+
+            function setupEventListeners() {
+                // Mobile menu toggle
+                elements.mobileMenuBtn.addEventListener('click', () => {
+                    elements.navLinks.classList.toggle('active');
+                });
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.nav-container') && 
+                        !e.target.closest('.mobile-menu-btn') &&
+                        elements.navLinks.classList.contains('active')) {
+                        elements.navLinks.classList.remove('active');
+                    }
+                });
+
+                // Logout link
+                elements.logoutLink.addEventListener('click', handleSignOut);
+
+                // Ticket form submission
+                elements.supportForm.addEventListener('submit', handleSubmitTicket);
+            }
+
+            // Authentication Functions
+            async function checkCurrentSession() {
+                if (!supabase) {
+                    console.error('Supabase not initialized');
+                    return;
+                }
+
+                try {
+                    // Get current session from Supabase
+                    const { data: { session }, error } = await supabase.auth.getSession();
+                    
+                    if (error) {
+                        console.error('Error checking session:', error);
+                        return;
+                    }
+
+                    if (session?.user) {
+                        // User is logged in
+                        console.log('Found existing session:', session.user);
+                        
+                        // Get user profile from profiles table
+                        const { data: profile, error: profileError } = await supabase
+                            .from('profiles')
+                            .select('*')
+                            .eq('id', session.user.id)
+                            .single();
+                            
+                        if (profileError && profileError.code !== 'PGRST116') {
+                            console.error('Error fetching profile:', profileError);
+                        }
+                        
+                        // Set current user
+                        currentUser = {
+                            id: session.user.id,
+                            email: session.user.email,
+                            name: profile?.name || session.user.user_metadata?.name || session.user.email.split('@')[0],
+                            role: profile?.role || 'user'
+                        };
+                        
+                        console.log('Current user set:', currentUser);
+                        
+                        // Update UI
+                        updateUI();
+                    }
+                } catch (error) {
+                    console.error('Session check error:', error);
+                }
+            }
+
+            async function handleSignOut(e) {
+                e.preventDefault();
+                
+                if (!supabase) return;
+                
+                if (confirm('Are you sure you want to logout?')) {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        
+                        if (error) {
+                            console.error('Sign out error:', error);
+                            alert('Error signing out. Please try again.');
+                            return;
+                        }
+                        
+                        // Clear local state
+                        currentUser = null;
+                        
+                        // Clear storage
+                        localStorage.removeItem('supabase.auth.token');
+                        localStorage.removeItem('adminToken');
+                        sessionStorage.removeItem('adminLoggedIn');
+                        
+                        // Clear cookies
+                        document.cookie = "sb-access-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        document.cookie = "sb-refresh-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        
+                        // Redirect to main page
+                        window.location.href = 'index.html';
+                        
+                    } catch (error) {
+                        console.error('Sign out error:', error);
+                        alert('Error signing out. Please try again.');
+                    }
+                }
+            }
+
+            function updateUI() {
+                if (currentUser) {
+                    // Update user info in header
+                    elements.userName.textContent = currentUser.name;
+                    elements.userEmail.textContent = currentUser.email;
+                    elements.userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+                    
+                    // Show user info and logout
+                    elements.userInfoContainer.classList.remove('hidden');
+                    
+                    // Update header status
+                    elements.headerStatus.textContent = `Welcome, ${currentUser.name}`;
+                    
+                } else {
+                    // Hide user info
+                    elements.userInfoContainer.classList.add('hidden');
+                    
+                    // Update header status
+                    elements.headerStatus.textContent = 'Submit Support Ticket';
+                }
+            }
+
+            // TICKET SUBMISSION FUNCTION - UPDATED TO WORK LIKE INDEX.HTML
+            async function handleSubmitTicket(e) {
+                e.preventDefault();
+                
+                const submitBtn = elements.submitBtn;
+                const loading = elements.loading;
+                const responseMessage = elements.responseMessage;
+
+                function showLoading(on) { 
+                    loading.style.display = on ? 'flex' : 'none'; 
+                }
+                
+                function showMessage(type, html) {
+                    responseMessage.className = 'response-message ' + (type || '');
+                    responseMessage.innerHTML = html;
+                    responseMessage.style.display = 'block';
+                }
+
+                // Get form data
+                const formData = {
+                    name: document.getElementById('name').value.trim(),
+                    department: document.getElementById('department').value,
+                    urgency: document.getElementById('urgency').value,
+                    issue: document.getElementById('issue').value.trim(),
+                    // Add user email for Telegram notification
+                    email: currentUser ? currentUser.email : '',
+                    user_id: currentUser ? currentUser.id : 'anonymous'
+                };
+
+                // Validation
+                if (!formData.name || !formData.department || !formData.urgency || !formData.issue) {
+                    showMessage('error', '❌ Please fill in all required fields.');
+                    return;
+                }
+
+                // Disable submit button and show loading
+                submitBtn.disabled = true;
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+                showLoading(true);
+                responseMessage.style.display = 'none';
+
+                try {
+                    // Generate a unique ticket ID
+                    const ticketId = generateTicketId();
+                    
+                    // 1. Save to Supabase first
+                    const { data: supabaseData, error: supabaseError } = await supabase
+                        .from('tickets')
+                        .insert([
+                            {
+                                ticket_id: ticketId,
+                                name: formData.name,
+                                email: formData.email || '',
+                                department: formData.department,
+                                urgency: formData.urgency,
+                                issue: formData.issue,
+                                status: 'open',
+                                response: null,
+                                user_id: currentUser ? currentUser.id : null,
+                                created_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            }
+                        ])
+                        .select()
+                        .single();
+
+                    if (supabaseError) {
+                        console.error('Error saving to Supabase:', supabaseError);
+                        throw new Error('Failed to save ticket to database');
+                    }
+
+                    // 2. Send to Telegram
+                    const telegramResult = await sendToTelegram(formData, ticketId);
+                    
+                    // 3. Also send to backend for backup (optional)
+                    try {
+                        await fetch('https://tomoca.onrender.com/submit-ticket', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                ...formData,
+                                ticketId: ticketId
+                            })
+                        });
+                    } catch (backendError) {
+                        console.warn('Backend submission failed, but Supabase saved:', backendError);
+                        // Continue anyway - Supabase is our primary storage
+                    }
+
+                    // Show response message
+                    responseMessage.style.display = 'block';
+                    const successHTML = `
+                        <h4><i class="fas fa-check-circle"></i> Ticket Submitted Successfully!</h4>
+                        <p>Your ticket has been submitted and our IT team has been notified.</p>
+                        <div class="ticket-id-display">
+                            <span>Your Ticket ID: <strong>${ticketId}</strong></span>
+                            <button class="copy-btn" onclick="copyToClipboard('${ticketId}')">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <p class="mt-4"><small>Please keep this ticket ID for reference. We'll contact you shortly.</small></p>
+                        <p><small><i class="fas fa-paper-plane"></i> Notification sent to Telegram</small></p>
+                        <p><small><i class="fas fa-database"></i> Ticket saved to database</small></p>
+                        <p class="mt-4">
+                            <a href="track.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">
+                                <i class="fas fa-search"></i> Track your ticket status
+                            </a>
+                        </p>
+                    `;
+                    showMessage('success', successHTML);
+                    
+                    // Reset form (keep name if user is logged in)
+                    document.getElementById('department').value = '';
+                    document.getElementById('urgency').value = '';
+                    document.getElementById('issue').value = '';
+                    
+                    // Keep name field filled if user is logged in
+                    if (!currentUser) {
+                        document.getElementById('name').value = '';
+                    }
+                    
+                } catch (err) {
+                    console.error('Error submitting ticket:', err);
+                    showMessage('error', `
+                        <h4><i class="fas fa-exclamation-circle"></i> Submission Failed</h4>
+                        <p>❌ ${err.message || 'Failed to submit ticket. Please try again.'}</p>
+                        <p class="mt-4"><small>Please try again or contact IT support directly.</small></p>
+                    `);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Ticket';
+                    showLoading(false);
+                    
+                    // Scroll to response message
+                    responseMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+
+            // Generate unique ticket ID (same as index.html)
+            function generateTicketId() {
+                const timestamp = Date.now().toString(36);
+                const random = Math.random().toString(36).substring(2, 8);
+                return `TICKET-${timestamp}-${random}`.toUpperCase();
+            }
+
+            // Telegram function (same as index.html)
+            async function sendToTelegram(ticketData, ticketId) {
+                if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+                    console.warn('Telegram credentials not configured');
+                    return null;
+                }
+
+                // Format message for Telegram
+                const message = `
+🎫 *NEW SUPPORT TICKET*
+
+*Ticket ID:* ${ticketId}
+*Name:* ${escapeHtml(ticketData.name)}
+*Email:* ${escapeHtml(ticketData.email) || 'Not provided'}
+*Department:* ${escapeHtml(ticketData.department)}
+*Urgency:* ${escapeHtml(ticketData.urgency)}
+*Status:* Open
+*Submitted:* ${new Date().toLocaleString()}
+*User ID:* ${ticketData.user_id}
+
+*Issue Description:*
+${escapeHtml(ticketData.issue).substring(0, 1000)}${ticketData.issue.length > 1000 ? '...' : ''}
+                `.trim();
+
+                try {
+                    // Send to Telegram Bot API
+                    const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                    
+                    const response = await fetch(telegramUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: message,
+                            parse_mode: 'Markdown'
+                        })
+                    });
+
+                    const result = await response.json();
+                    console.log('Telegram response:', result);
+                    
+                    if (!result.ok) {
+                        console.error('Telegram API error:', result);
+                        return null;
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error('Error sending to Telegram:', error);
+                    return null;
+                }
+            }
+
+            // Utility function to escape HTML
+            function escapeHtml(str) {
+                return String(str || '').replace(/[&<>"']/g, s => ({
+                    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+                })[s]);
+            }
+
+            // Utility function to copy to clipboard
+            window.copyToClipboard = function(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Ticket ID copied to clipboard!');
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        alert('Ticket ID copied to clipboard!');
+                    } catch (err) {
+                        console.error('Fallback copy failed:', err);
+                        alert('Failed to copy to clipboard. Please copy manually: ' + text);
+                    }
+                    document.body.removeChild(textArea);
+                });
+            };
+
+            // Listen for auth state changes
+            if (supabase) {
+                supabase.auth.onAuthStateChange((event, session) => {
+                    console.log('Auth state changed:', event);
+                    
+                    if (event === 'SIGNED_IN' && session?.user) {
+                        // Update user info
+                        checkCurrentSession();
+                    } else if (event === 'SIGNED_OUT') {
+                        // User signed out
+                        currentUser = null;
+                        updateUI();
+                    }
+                });
+            }
+
+        })();
+    </script>
+</body>
+</html>

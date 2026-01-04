@@ -3,76 +3,184 @@
 // Add ?admin=YOUR_SECRET in URL to enable admin actions
 (function () {
   const API_BASE = 'https://tomoca.onrender.com';
-  const ADMIN_SECRET = window._utils.getAdminSecretFromUrl();
-  const adminHeaders = ADMIN_SECRET ? { 'x-admin-secret': ADMIN_SECRET } : {};
-
-  async function fetchRecentTickets(limit = 10) {
-    const res = await fetch(`${API_BASE}/tickets?limit=${limit}`, { headers: adminHeaders });
-    return res.json();
+  
+  // Get admin secret from URL or localStorage
+  function getAdminSecret() {
+    const params = new URLSearchParams(window.location.search);
+    const secret = params.get('admin');
+    
+    if (secret) {
+      // Store in localStorage for convenience
+      localStorage.setItem('adminSecret', secret);
+      return secret;
+    }
+    
+    // Try to get from localStorage
+    return localStorage.getItem('adminSecret') || '';
   }
-
+  
+  const ADMIN_SECRET = getAdminSecret();
+  const adminHeaders = ADMIN_SECRET ? { 
+    'x-admin-secret': ADMIN_SECRET,
+    'Content-Type': 'application/json'
+  } : {};
+  
+  // Fetch all tickets with filters and pagination
   async function fetchTickets({ status = '', department = '', q = '', page = 1, limit = 20 } = {}) {
-    const params = new URLSearchParams();
-    if (status) params.append('status', status);
-    if (department) params.append('department', department);
-    if (q) params.append('q', q);
-    params.append('limit', limit);
-    params.append('page', page);
-    const res = await fetch(`${API_BASE}/tickets?${params.toString()}`, { headers: adminHeaders });
-    return res.json();
+    try {
+      const params = new URLSearchParams();
+      if (status) params.append('status', status);
+      if (department) params.append('department', department);
+      if (q) params.append('q', q);
+      params.append('page', page);
+      params.append('limit', limit);
+      
+      const res = await fetch(`${API_BASE}/tickets?${params.toString()}`, { 
+        headers: adminHeaders 
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      return await res.json();
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+      return { 
+        success: false, 
+        error: error.message,
+        tickets: [],
+        total: 0
+      };
+    }
   }
-
+  
+  // Fetch single ticket by ID
   async function fetchTicketById(id) {
-    const res = await fetch(`${API_BASE}/ticket?id=${encodeURIComponent(id)}`, { headers: adminHeaders });
-    return res.json();
+    try {
+      const res = await fetch(`${API_BASE}/ticket?id=${encodeURIComponent(id)}`, { 
+        headers: adminHeaders 
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      return await res.json();
+    } catch (error) {
+      console.error('Error fetching ticket:', error);
+      return { 
+        success: false, 
+        error: error.message,
+        ticket: null
+      };
+    }
   }
-
-  async function updateTicket(id, updates = {}) {
-    const res = await fetch(`${API_BASE}/update-ticket`, {
-      method: 'POST',
-      headers: Object.assign({ 'Content-Type': 'application/json' }, adminHeaders),
-      body: JSON.stringify({ id, updates })
-    });
-    return res.json();
+  
+  // Update ticket status or other fields
+  async function updateTicketStatus(id, status) {
+    try {
+      const res = await fetch(`${API_BASE}/update-ticket`, {
+        method: 'POST',
+        headers: adminHeaders,
+        body: JSON.stringify({ 
+          id: id, 
+          updates: { status: status } 
+        })
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      return await res.json();
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      return { 
+        success: false, 
+        error: error.message
+      };
+    }
   }
-
-  function escapeHtml(str = '') {
-    return String(str).replace(/[&<>"']/g, function (m) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]; });
+  
+  // Delete ticket
+  async function deleteTicket(id) {
+    try {
+      const res = await fetch(`${API_BASE}/ticket?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: adminHeaders
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      return await res.json();
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+      return { 
+        success: false, 
+        error: error.message
+      };
+    }
   }
-
-  function urgencyColor(u) {
-    if (!u) return '#777';
-    const v = (u || '').toLowerCase();
-    if (v.includes('critical') || v.includes('high')) return '#d32f2f';
-    if (v.includes('medium')) return '#ff9800';
-    return '#2e7d32';
+  
+  // Fetch all tickets without pagination (for dashboard stats)
+  async function fetchAllTickets() {
+    try {
+      const res = await fetch(`${API_BASE}/tickets?limit=1000`, { 
+        headers: adminHeaders 
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      
+      // Transform to match dashboard expectations
+      const tickets = data.tickets || [];
+      const formattedTickets = tickets.map(ticket => ({
+        id: ticket.id || ticket.ticketId,
+        name: ticket.name || 'Anonymous',
+        department: ticket.department || 'General',
+        status: ticket.status?.toLowerCase().replace(' ', '_') || 'open',
+        urgency: ticket.urgency?.toLowerCase() || 'medium',
+        message: ticket.message || ticket.issue || 'No description provided',
+        createdAt: ticket.createdAt || ticket.created_at || Date.now(),
+        telegramId: ticket.telegramId || null,
+        contact: ticket.contact || 'N/A'
+      }));
+      
+      return {
+        success: true,
+        tickets: formattedTickets,
+        total: data.total || 0
+      };
+    } catch (error) {
+      console.error('Error fetching all tickets:', error);
+      return { 
+        success: false, 
+        error: error.message,
+        tickets: [],
+        total: 0
+      };
+    }
   }
-
-  function ticketRowHtml(t) {
-    return `
-      <div class="ticket-row" data-id="${t.id}" style="padding:12px;border-bottom:1px solid #f6f6f6;display:flex;justify-content:space-between;align-items:center;">
-        <div style="max-width:72%">
-          <div style="font-weight:700">${escapeHtml(t.name)} <span style="color:#777;font-weight:600">(${escapeHtml(t.department||'')})</span></div>
-          <div style="font-size:0.92rem;color:#666;margin-top:6px;">${escapeHtml((t.issue||'').slice(0,180))}${(t.issue||'').length>180 ? '...' : ''}</div>
-          <div style="margin-top:6px;font-size:0.86rem;color:#555">
-            <span class="ticket-id">${t.id}</span> • ${window._utils.formatDate(t.createdAt || t.timestamp)} • <strong style="color:${urgencyColor(t.urgency)}">${t.urgency}</strong>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <a href="ticket.html?id=${encodeURIComponent(t.id)}&admin=${ADMIN_SECRET}" class="submit-btn" style="padding:8px 12px;font-size:0.9rem;">View</a>
-          <button class="copy-id-btn submit-btn" data-id="${t.id}" style="padding:8px 10px;font-size:0.9rem;background:#6c757d;">Copy</button>
-        </div>
-      </div>
-    `;
-  }
-
+  
   // Export to window
   window._admin = {
-    fetchRecentTickets,
     fetchTickets,
     fetchTicketById,
-    updateTicket,
-    ticketRowHtml,
-    urgencyColor
+    updateTicketStatus,
+    deleteTicket,
+    fetchAllTickets, // Add this function
+    fetchRecentTickets: (limit = 10) => fetchTickets({ limit, page: 1 }), // Keep for compatibility
+    updateTicket: updateTicketStatus, // Alias for compatibility
+    getAdminSecret: () => ADMIN_SECRET // Expose for other scripts
   };
+  
+  // Also expose globally for inline onclick handlers
+  window.updateTicketStatus = updateTicketStatus;
+  window.deleteTicket = deleteTicket;
 })();
